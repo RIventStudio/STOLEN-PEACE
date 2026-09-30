@@ -1,0 +1,76 @@
+# Unity: generated folders
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# IDE/editor generated files
+/.vs/
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Unity crash reports
+sysinfo.txt
+
+# Public repository: third-party Unity assets kept local only
+/Assets/HOUSE/
+/Assets/ALP_Assets/
+/Assets/QA_Books/
+/Assets/Real Stars Skybox/
+/Assets/New Solution Studio/
+/Assets/Scenes/ZNS3D/
+/Assets/FPS/KinematicCharacterController/
+
+# External texture provenance not yet verified
+/Assets/1601.m10.i311.n029.S.c10.164511620 Seamless green grass vector pattern.jpg
+/Assets/1601.m10.i311.n029.S.c10.164511620 Seamless green grass vector pattern.jpg.meta
+/Assets/1601.m10.i311.n029.S.c10.164511620 Seamless green grass vector pattern.eps
+/Assets/1601.m10.i311.n029.S.c10.164511620 Seamless green grass vector pattern.eps.meta
+/Assets/0c0b6da19f981ca7e7ee1cbad88d590a.jpg
+/Assets/0c0b6da19f981ca7e7ee1cbad88d590a.jpg.meta
+/Assets/breakstone-8.jpg
+/Assets/breakstone-8.jpg.meta
+/Assets/ground-1.jpg
+/Assets/ground-1.jpg.meta
+
+# Companion .meta files for excluded third-party roots
+/Assets/HOUSE.meta
+/Assets/ALP_Assets.meta
+/Assets/QA_Books.meta
+/Assets/Real Stars Skybox.meta
+/Assets/New Solution Studio.meta
+/Assets/FPS.meta
+/Assets/FPS/KinematicCharacterController.meta
+/Assets/Scenes/ZNS3D.meta
+
+# Additional third-party pack discovered during public-repo audit
+/Assets/Materials/Gardening_Tools_Pack_26_PBR_objects/
+/Assets/Materials/Gardening_Tools_Pack_26_PBR_objects.meta
+
+# Unity template tutorial content is not part of STOLEN PEACE
+/Assets/TutorialInfo/
+/Assets/TutorialInfo.meta
+/Assets/Readme.asset
+/Assets/Readme.asset.meta
