@@ -13,7 +13,7 @@
  * - 20s Auto-Cycle with 60s Manual Override Pause
  * - VHS Mode with Heavy 10-40% Tape Interference
  * 
- * Author: RIventStudio (Неменущий Артём Витальевич)
+ * Author: RIventStudio
  */
 
 (function () {
