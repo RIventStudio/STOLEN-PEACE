@@ -6,10 +6,10 @@
  * - Native <dialog> Modals with Full Card Click & Esc/Backdrop Click
  * - Native View Transitions API for Vision Modes
  * - Native Temporal API for Timecode with <20 line fallback
- * - Auto-playing Web Audio with 30-90s Smooth Breathing Volume Modulation (-30%)
+ * - Auto-playing Web Audio with 30-90s Smooth Breathing Volume Modulation (10% to 60%)
  * - Audio-Volume Bound Living Capital Letters:
- *   * At lower volume level: letters DO NOT vibrate (amplitude = 0)
- *   * At upper volume level: full vibration (5-15px)
+ *   * Letter vibration intensity is directly proportional to audio volume (10% to 60%)
+ *   * When muted: letter vibration remains at 10% of base amplitude (subtle jitter)
  * - 20s Auto-Cycle with 60s Manual Override Pause
  * - VHS Mode with Heavy 10-40% Tape Interference
  * 
@@ -161,7 +161,7 @@
 
 
     // =========================================================================
-    // 2. АВТО-ВОСПРОИЗВЕДЕНИЕ АУДИО И МОДУЛЯЦИЯ ГРОМКОСТИ (-30%, ПЕРИОД 60 СЕК)
+    // 2. АВТО-ВОСПРОИЗВЕДЕНИЕ АУДИО И МОДУЛЯЦИЯ ГРОМКОСТИ (10% - 60%, ПЕРИОД 60 СЕК)
     // =========================================================================
     let audioCtx = null;
     let droneOsc1 = null;
@@ -172,8 +172,8 @@
     // Переменные для модуляции громкости и связи с живыми буквами
     const VOLUME_PERIOD_MS = 60000; // Период модуляции громкости: 60 сек (диапазон 30-90 сек)
     const BASE_GAIN = 0.12;
-    let currentVolumeRatio = 1.0; // от 0.70 (-30%) до 1.0 (макс)
-    let normalizedVibeFactor = 1.0; // от 0.0 (буквы не дрожат) до 1.0 (полное дрожание)
+    let currentVolumeRatio = 0.60; // от 0.10 (10%) до 0.60 (60%) от базовой громкости
+    let normalizedVibeFactor = 0.60; // пропорционально громкости (при мьюте: 0.10)
 
     function initAudio() {
         if (audioCtx) return;
@@ -196,7 +196,7 @@
         filter.frequency.value = 180;
 
         droneGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-        droneGain.gain.exponentialRampToValueAtTime(BASE_GAIN, audioCtx.currentTime + 0.8);
+        droneGain.gain.exponentialRampToValueAtTime(BASE_GAIN * currentVolumeRatio, audioCtx.currentTime + 0.8);
 
         droneOsc1.connect(filter);
         droneOsc2.connect(filter);
@@ -229,24 +229,24 @@
         }, { once: true, passive: true });
     });
 
-    // Плавное циклическое дыхание громкости (уменьшение на 30% и возврат каждые 60 секунд)
+    // Плавное циклическое дыхание громкости (от 10% до 60% от базовой, период 60 секунд)
     function updateVolumeBreathing() {
         const cycleProgress = (performance.now() % VOLUME_PERIOD_MS) / VOLUME_PERIOD_MS;
         
-        // Синусоида: sin=-1 -> громкость 1.0 (макс, vibe=1.0)
-        //            sin=+1 -> громкость 0.70 (-30%, vibe=0.0)
+        // Синусоида с диапазоном [0.10, 0.60]:
+        // Центр = (0.60 + 0.10) / 2 = 0.35, амплитуда = (0.60 - 0.10) / 2 = 0.25
         const sinWave = Math.sin(cycleProgress * Math.PI * 2);
+        currentVolumeRatio = 0.35 + (0.25 * sinWave); // колеблется плавно между 0.10 и 0.60
         
-        // currentVolumeRatio: от 1.0 (верхний уровень) до 0.70 (нижний уровень, ровно -30%)
-        currentVolumeRatio = 0.85 - (0.15 * sinWave);
-        
-        // normalizedVibeFactor: 0.0 на нижнем уровне (0.70), 1.0 на верхнем уровне (1.0)
-        normalizedVibeFactor = (currentVolumeRatio - 0.70) / 0.30;
-        normalizedVibeFactor = Math.max(0, Math.min(1, normalizedVibeFactor));
-
-        if (isAudioPlaying && droneGain && audioCtx && audioCtx.state === 'running') {
-            const targetGain = BASE_GAIN * currentVolumeRatio;
-            droneGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.2);
+        // Интенсивность дрожания букв пропорциональна громкости (при мьюте — ровно 10%)
+        if (isAudioPlaying) {
+            normalizedVibeFactor = currentVolumeRatio;
+            if (droneGain && audioCtx && audioCtx.state === 'running') {
+                const targetGain = BASE_GAIN * currentVolumeRatio;
+                droneGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.2);
+            }
+        } else {
+            normalizedVibeFactor = 0.10; // при мьют — 10% от текущей/базовой интенсивности
         }
 
         requestAnimationFrame(updateVolumeBreathing);
@@ -461,21 +461,17 @@
                 item.el.classList.add('vibrating');
             } else if (item.vibrateUntil > now) {
                 // === СВЯЗЬ АМПЛИТУДЫ С ГРОМКОСТЬЮ АУДИО ===
-                // На нижнем уровне громкости (normalizedVibeFactor <= 0.03): буквы НЕ ДРОЖАТ!
-                // На верхнем уровне громкости (normalizedVibeFactor == 1.0): дрожат как сейчас (5-15px)!
-                if (normalizedVibeFactor <= 0.03) {
-                    item.el.style.transform = 'translate(0, 0)';
-                } else {
-                    const remaining = item.vibrateUntil - now;
-                    const progress = remaining / 5000;
-                    const baseAmp = 5 + progress * 10; // от 15px до 5px
-                    const effectiveAmp = baseAmp * normalizedVibeFactor;
+                // Интенсивность пропорциональна громкости (от 10% до 60%),
+                // а при мьюте составляет 10% от базовой амплитуды (0.10)
+                const remaining = item.vibrateUntil - now;
+                const progress = remaining / 5000;
+                const baseAmp = 5 + progress * 10; // от 15px до 5px
+                const effectiveAmp = baseAmp * normalizedVibeFactor;
 
-                    const jx = (Math.random() - 0.5) * 2 * effectiveAmp;
-                    const jy = (Math.random() - 0.5) * 2 * effectiveAmp;
+                const jx = (Math.random() - 0.5) * 2 * effectiveAmp;
+                const jy = (Math.random() - 0.5) * 2 * effectiveAmp;
 
-                    item.el.style.transform = `translate(${jx.toFixed(1)}px, ${jy.toFixed(1)}px)`;
-                }
+                item.el.style.transform = `translate(${jx.toFixed(1)}px, ${jy.toFixed(1)}px)`;
             } else if (item.vibrateUntil !== 0) {
                 item.vibrateUntil = 0;
                 item.el.style.transform = '';
