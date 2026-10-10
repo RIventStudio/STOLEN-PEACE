@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STOLEN PEACE — Психологический триллер от первого лица | RIventStudio</title>
     
-    <!-- Предзагрузка критических ресурсов и шрифтов -->
+    <!-- Предзагрузка шрифтов -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Inter:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Rubik+Glitch&family=Inter:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Интерактивный холст фонаря и динамической тьмы -->
+    <!-- Интерактивный холст луча фонаря и тьмы -->
     <canvas id="flashlight-canvas" aria-hidden="true"></canvas>
 
     <!-- Оверлей видоискателя камеры (HUD) -->
@@ -26,7 +26,7 @@
                 <span class="hud-res">4K 60FPS RAW</span>
             </div>
             
-            <!-- Переключатель современных режимов зрения (Vision Mode Switcher) -->
+            <!-- Переключатель современных режимов зрения -->
             <div class="vision-modes" role="toolbar" aria-label="Режимы зрения">
                 <button type="button" class="mode-btn active" data-mode="normal" title="Обычный свет фонаря">
                     <span class="mode-icon">&#9788;</span> NORMAL
@@ -50,24 +50,24 @@
             </div>
         </div>
         
-        <!-- Линейки видоискателя и прицел -->
         <div class="hud-crosshair" aria-hidden="true"></div>
         <div class="hud-scanlines" aria-hidden="true"></div>
     </div>
 
-    <!-- Основная шапка сайта -->
+    <!-- Шапка сайта -->
     <header class="site-header">
         <div class="header-inner container">
             <a href="#hero" class="brand-logo">
-                <span class="logo-glitch" data-text="STOLEN">STOLEN</span>
+                <span class="logo-scratch">STOLEN</span>
                 <span class="logo-sub">PEACE</span>
             </a>
             
             <nav class="main-nav" aria-label="Навигация">
                 <ul class="nav-list">
                     <li><a href="#prologue" class="nav-link">Хроника</a></li>
+                    <li><a href="#gallery" class="nav-link">Локации</a></li>
                     <li><a href="#mechanics" class="nav-link">Механики C#</a></li>
-                    <li><a href="#evidence" class="nav-link">Улики</a></li>
+                    <li><a href="#community" class="nav-link">Пикабу</a></li>
                     <li><a href="#playtest" class="nav-link">Плейтест</a></li>
                 </ul>
             </nav>
@@ -80,16 +80,22 @@
 
     <main class="main-content">
 
-        <!-- 1. HERO: Пролог в темноте -->
+        <!-- 1. HERO: Пролог с аутентичным ночным фоном -->
         <section class="hero-section" id="hero">
+            <div class="hero-backdrop" aria-hidden="true">
+                <img src="assets/hero_sign_night.jpg" alt="STOLEN PEACE ночной особняк" class="hero-bg-img" fetchpriority="high">
+                <div class="hero-overlay-gradient"></div>
+            </div>
+
             <div class="container hero-container">
                 <div class="hero-tag">
                     <span class="tag-status">Alpha Stage</span>
-                    <span class="tag-engine">Unity 6 &bull; PBR Lighting</span>
+                    <span class="tag-engine">Unity 6 &bull; PBR Lighting &bull; RIventStudio</span>
                 </div>
 
                 <h1 class="hero-title">
-                    ТЕМНОТА НЕ СКРЫВАЕТ <span class="title-highlight">ПРАВДУ</span>
+                    <span class="scratch-title">STOLEN PEACE</span>
+                    <span class="hero-subtext">ТЕМНОТА НЕ СКРЫВАЕТ <span class="title-highlight">ПРАВДУ</span></span>
                 </h1>
 
                 <p class="hero-subtitle">
@@ -103,14 +109,14 @@
                         <span class="btn-text">Запросить доступ к альфе</span>
                         <span class="btn-shine"></span>
                     </a>
-                    <a href="#evidence" class="btn btn-glass">
-                        Исследовать улики &darr;
+                    <a href="#gallery" class="btn btn-glass">
+                        Исследовать локации &darr;
                     </a>
                 </div>
 
                 <div class="hero-interact-tip">
-                    <span class="key-hint">MOUSE</span> Двигайте курсор для управления лучом фонаря &bull; 
-                    <span class="key-hint">MODE</span> Переключайте режимы камеры в верхнем HUD
+                    <span class="key-hint">MOUSE</span> Управление лучом фонарика &bull; 
+                    <span class="key-hint">MODE</span> Режимы камеры: NORMAL / NVG / VHS в HUD
                 </div>
             </div>
 
@@ -120,7 +126,7 @@
             </div>
         </section>
 
-        <!-- 2. СЮЖЕТ И ЛОР: Проявление при скролле (Scroll-driven animations) -->
+        <!-- 2. СЮЖЕТ И ЛОР -->
         <section class="story-section scroll-reveal" id="prologue">
             <div class="container">
                 <div class="section-label">ГЛАВА 01 &bull; ПОГРУЖЕНИЕ</div>
@@ -133,7 +139,7 @@
                             Каждая комната особняка хранит следы недавней борьбы и оставленные послания.
                         </p>
                         <p>
-                            Здесь нет шаблонных громких скримеров: гнетущее напряжение нарастает через 
+                            Здесь нет шаблонных дешевых скримеров: гнетущее напряжение нарастает через 
                             динамические тени, гул в коридорах и осознание того, что в доме вы не одни.
                         </p>
 
@@ -160,22 +166,97 @@
                     </div>
 
                     <div class="story-interactive-card tilt-card" data-tilt>
-                        <div class="card-glass-glow"></div>
-                        <div class="card-badge">ОБЪЕКТ ИССЛЕДОВАНИЯ #01</div>
-                        <h3 class="card-title">Главный зал особняка</h3>
-                        <p class="card-meta">Локация: Vintage Living Room &bull; Координаты: [44.12, -12.44]</p>
-                        <div class="card-specs">
-                            <div class="spec-pill">PBR Shaders</div>
-                            <div class="spec-pill">Volumetric Fog</div>
-                            <div class="spec-pill">Binaural Audio</div>
+                        <div class="card-visual-wrapper">
+                            <img src="assets/cover_car_fog.jpg" alt="Машина перед домом в тумане" class="card-img" loading="lazy">
+                            <div class="card-img-overlay"></div>
                         </div>
-                        <div class="card-inspect-hint">[НАВЕДИТЕ ДЛЯ 3D-НАКЛОНА]</div>
+                        <div class="card-body">
+                            <div class="card-badge">ЭКСТЕРЬЕР #01</div>
+                            <h3 class="card-title">Подъезд к заброшенному дому</h3>
+                            <p class="card-meta">Локация: Dark Forest Road &bull; Статус: Неизвестная угроза</p>
+                            <div class="card-inspect-hint">[НАВЕДИТЕ ДЛЯ 3D-НАКЛОНА И ОСВЕЩЕНИЯ]</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3. КЛЮЧЕВЫЕ МЕХАНИКИ: C# & Unity Architecture -->
+        <!-- 3. ЛОКАЦИИ И ИНТЕРЬЕРЫ: АРТ-ГАЛЕРЕЯ -->
+        <section class="gallery-section scroll-reveal" id="gallery">
+            <div class="container">
+                <div class="section-label">АТМОСФЕРА И ОКРУЖЕНИЕ</div>
+                <h2 class="section-heading">ЛОКАЦИИ ОСОБНЯКА</h2>
+                <p class="section-lead">Реальные кадры игровых сцен STOLEN PEACE: от туманной дороги до мрачных комнат</p>
+
+                <div class="gallery-grid">
+                    <!-- Арт 1: Экстерьер ночного дома -->
+                    <div class="gallery-card tilt-card" data-tilt>
+                        <div class="gallery-img-box">
+                            <img src="assets/hero_sign_night.jpg" alt="Особняк при лунном свете" class="gallery-img" loading="lazy">
+                            <button type="button" class="zoom-btn" popovertarget="modal-sign" title="Развернуть фото">&#128269;</button>
+                        </div>
+                        <div class="gallery-info">
+                            <span class="gallery-tag">EXTERIOR SCENE</span>
+                            <h3 class="gallery-title">Загородный особняк ночью</h3>
+                            <p class="gallery-desc">Одинокий свет в окне второго этажа и тишина глухого соснового леса.</p>
+                        </div>
+                    </div>
+
+                    <!-- Арт 2: Интерьер кухни -->
+                    <div class="gallery-card tilt-card" data-tilt>
+                        <div class="gallery-img-box">
+                            <img src="assets/interior_kitchen.jpg" alt="Винтажная кухня особняка" class="gallery-img" loading="lazy">
+                            <button type="button" class="zoom-btn" popovertarget="modal-kitchen" title="Развернуть фото">&#128269;</button>
+                        </div>
+                        <div class="gallery-info">
+                            <span class="gallery-tag">INTERIOR SCENE</span>
+                            <h3 class="gallery-title">Винтажная кухня и раковина</h3>
+                            <p class="gallery-desc">Теплый свет одинокой настенной лампы и следы брошенной посуды.</p>
+                        </div>
+                    </div>
+
+                    <!-- Арт 3: Туманная дорога и машина -->
+                    <div class="gallery-card tilt-card" data-tilt>
+                        <div class="gallery-img-box">
+                            <img src="assets/cover_car_fog.jpg" alt="Туманная дорога к дому" class="gallery-img" loading="lazy">
+                            <button type="button" class="zoom-btn" popovertarget="modal-car" title="Развернуть фото">&#128269;</button>
+                        </div>
+                        <div class="gallery-info">
+                            <span class="gallery-tag">CINEMATIC ART</span>
+                            <h3 class="gallery-title">Свет фар в густом тумане</h3>
+                            <p class="gallery-desc">Точка невозврата: прибытие на место расследования.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Модальные окна полноэкранного просмотра (Popover API) -->
+        <div id="modal-sign" popover="auto" class="photo-modal">
+            <div class="modal-box">
+                <button type="button" class="modal-close" popovertarget="modal-sign" popovertargetaction="hide">&times;</button>
+                <img src="assets/hero_sign_night.jpg" alt="Особняк при лунном свете" class="modal-full-img">
+                <div class="modal-caption">STOLEN PEACE &bull; Главный ночной пейзаж с вывеской особняка</div>
+            </div>
+        </div>
+
+        <div id="modal-kitchen" popover="auto" class="photo-modal">
+            <div class="modal-box">
+                <button type="button" class="modal-close" popovertarget="modal-kitchen" popovertargetaction="hide">&times;</button>
+                <img src="assets/interior_kitchen.jpg" alt="Винтажная кухня особняка" class="modal-full-img">
+                <div class="modal-caption">STOLEN PEACE &bull; Интерьерная сцена кухни и поиск улик</div>
+            </div>
+        </div>
+
+        <div id="modal-car" popover="auto" class="photo-modal">
+            <div class="modal-box">
+                <button type="button" class="modal-close" popovertarget="modal-car" popovertargetaction="hide">&times;</button>
+                <img src="assets/cover_car_fog.jpg" alt="Туманная дорога к дому" class="modal-full-img">
+                <div class="modal-caption">STOLEN PEACE &bull; Подъездная дорога сквозь туман</div>
+            </div>
+        </div>
+
+        <!-- 4. КЛЮЧЕВЫЕ МЕХАНИКИ C# И UNITY -->
         <section class="mechanics-section scroll-reveal" id="mechanics">
             <div class="container">
                 <div class="section-label">ТЕХНОЛОГИЧЕСКИЙ СТЕК ИГРЫ</div>
@@ -183,7 +264,6 @@
                 <p class="section-lead">Проект построен на чистых архитектурных паттернах для максимальной гибкости геймплея</p>
 
                 <div class="mechanics-grid">
-                    <!-- Карточка 1: IInteractable -->
                     <article class="mechanic-card tilt-card" data-tilt>
                         <div class="mech-header">
                             <span class="mech-code-tag">C# Interface</span>
@@ -201,7 +281,6 @@
 }</code></pre>
                     </article>
 
-                    <!-- Карточка 2: GameStateService -->
                     <article class="mechanic-card tilt-card" data-tilt>
                         <div class="mech-header">
                             <span class="mech-code-tag">State Machine</span>
@@ -218,7 +297,6 @@
 }</code></pre>
                     </article>
 
-                    <!-- Карточка 3: KinematicController -->
                     <article class="mechanic-card tilt-card" data-tilt>
                         <div class="mech-header">
                             <span class="mech-code-tag">Kinematics</span>
@@ -238,98 +316,34 @@
             </div>
         </section>
 
-        <!-- 4. ИНТЕРАКТИВНЫЕ УЛИКИ (Popover API + Web Audio) -->
-        <section class="evidence-section scroll-reveal" id="evidence">
+        <!-- 5. СООБЩЕСТВО И ПИКАБУ (Интеграция баннера) -->
+        <section class="community-section scroll-reveal" id="community">
             <div class="container">
-                <div class="section-label">ИНТЕРАКТИВНОЕ ДОСЬЕ</div>
-                <h2 class="section-heading">УЛИКИ И АРТЕФАКТЫ ОСОБНЯКА</h2>
-                <p class="section-lead">Кликните на улику, чтобы открыть рассекреченное досье через Popover API</p>
-
-                <div class="evidence-grid">
-                    <!-- Улика 1 -->
-                    <div class="evidence-item">
-                        <button type="button" class="evidence-trigger" popovertarget="evidence-1" aria-haspopup="dialog">
-                            <span class="evidence-icon">&#128221;</span>
-                            <span class="evidence-name">Дневник хозяина дома</span>
-                            <span class="evidence-action">Осмотреть &rarr;</span>
-                        </button>
+                <div class="community-banner-card tilt-card" data-tilt>
+                    <div class="community-img-wrap">
+                        <img src="assets/pikabu_banner.jpg" alt="STOLEN PEACE на Пикабу" class="community-img" loading="lazy">
+                        <div class="community-badge-tag">DEVBLOG</div>
                     </div>
-
-                    <!-- Улика 2 -->
-                    <div class="evidence-item">
-                        <button type="button" class="evidence-trigger" popovertarget="evidence-2" aria-haspopup="dialog">
-                            <span class="evidence-icon">&#128254;</span>
-                            <span class="evidence-name">Аудиокассета #4</span>
-                            <span class="evidence-action">Осмотреть &rarr;</span>
-                        </button>
-                    </div>
-
-                    <!-- Улика 3 -->
-                    <div class="evidence-item">
-                        <button type="button" class="evidence-trigger" popovertarget="evidence-3" aria-haspopup="dialog">
-                            <span class="evidence-icon">&#128273;</span>
-                            <span class="evidence-name">Кованый ключ с гравировкой</span>
-                            <span class="evidence-action">Осмотреть &rarr;</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Нативные Popovers -->
-                <div id="evidence-1" popover="auto" class="modern-popover">
-                    <div class="popover-box">
-                        <div class="popover-header">
-                            <span class="popover-tag">УЛИКА #01 &bull; ТЕКСТ</span>
-                            <button type="button" class="popover-close" popovertarget="evidence-1" popovertargetaction="hide">&times;</button>
-                        </div>
-                        <h4 class="popover-title">Вырванная страница из дневника</h4>
-                        <p class="popover-body">
-                            «29 сентября. Они снова ходили по чердаку. Звук шагов тяжелый, но половицы не скрипят. 
-                            Я запер дверь на второй этаж. Если ты нашел это — не включай верхний свет...»
+                    <div class="community-content">
+                        <span class="section-label">ДНЕВНИКИ РАЗРАБОТКИ</span>
+                        <h2 class="community-title">МЫ НА ПИКАБУ</h2>
+                        <p class="community-desc">
+                            Читайте регулярные отчеты о разработке игры <strong>STOLEN PEACE</strong> на Unity: 
+                            создание PBR-материалов, настройка освещения, разработка физики персонажа 
+                            и закулисье инди-геймдева от студии <strong>RIventStudio</strong>.
                         </p>
-                        <div class="popover-footer">
-                            Статус: <em>Документ подтвержден</em> &bull; Местонахождение: Гостиная, стол
+                        <div class="community-actions">
+                            <a href="https://pikabu.ru/@RIventStudio" target="_blank" rel="noopener noreferrer" class="btn btn-pikabu">
+                                <span>Читать статьи на Пикабу</span> &rarr;
+                            </a>
+                            <span class="community-hint">Эксклюзивные арты и ответы на вопросы игроков</span>
                         </div>
                     </div>
                 </div>
-
-                <div id="evidence-2" popover="auto" class="modern-popover">
-                    <div class="popover-box">
-                        <div class="popover-header">
-                            <span class="popover-tag">УЛИКА #02 &bull; АУДИО</span>
-                            <button type="button" class="popover-close" popovertarget="evidence-2" popovertargetaction="hide">&times;</button>
-                        </div>
-                        <h4 class="popover-title">Магнитная лента: Запись 18:47</h4>
-                        <p class="popover-body">
-                            Слышны помехи аналоговой пленки, частое дыхание и звук отпираемого железного засова. 
-                            В конце пленки раздается тихий щелчок и голос: <em>«Оно уже внутри»</em>.
-                        </p>
-                        <div class="popover-footer">
-                            Формат: Микрокассета &bull; Качество: Повреждено временем
-                        </div>
-                    </div>
-                </div>
-
-                <div id="evidence-3" popover="auto" class="modern-popover">
-                    <div class="popover-box">
-                        <div class="popover-header">
-                            <span class="popover-tag">УЛИКА #03 &bull; ПРЕДМЕТ</span>
-                            <button type="button" class="popover-close" popovertarget="evidence-3" popovertargetaction="hide">&times;</button>
-                        </div>
-                        <h4 class="popover-title">Тяжелый бронзовый ключ</h4>
-                        <p class="popover-body">
-                            На ключе выбита эмблема двух скрещенных ламп и надпись на латыни: 
-                            <em>Pax Amissa</em> («Утраченный мир»). Отпирает потайную комнату подвала.
-                        </p>
-                        <div class="popover-footer">
-                            Материал: Черненная бронза &bull; Состояние: Следы коррозии
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </section>
 
-        <!-- 5. ФОРМА ЗАЯВКИ НА ПЛЕЙТЕСТ -->
+        <!-- 6. ФОРМА ЗАЯВКИ НА ПЛЕЙТЕСТ -->
         <section class="playtest-section scroll-reveal" id="playtest">
             <div class="container">
                 <div class="playtest-card">
@@ -381,7 +395,9 @@
     <footer class="site-footer">
         <div class="container footer-inner">
             <div class="footer-brand">
-                <div class="footer-logo">STOLEN PEACE</div>
+                <div class="footer-logo">
+                    <span class="logo-scratch">STOLEN</span> PEACE
+                </div>
                 <p class="footer-desc">
                     Авторский инди-проект от <strong>RIventStudio</strong> (Неменущий Артём Витальевич). 
                     Сделано с использованием передовых Web APIs, CSS Scroll-driven animations и Web Audio API.
@@ -393,6 +409,7 @@
                 <ul class="footer-nav">
                     <li><a href="https://github.com/RIventStudio/STOLEN-PEACE" target="_blank" rel="noopener noreferrer">Репозиторий игры</a></li>
                     <li><a href="https://github.com/RIventStudio/STOLEN-PEACE/blob/main/THIRD_PARTY_ASSETS.md" target="_blank" rel="noopener noreferrer">Third Party Assets</a></li>
+                    <li><a href="https://pikabu.ru/@RIventStudio" target="_blank" rel="noopener noreferrer">Блог на Пикабу</a></li>
                     <li><a href="https://github.com/RIventStudio" target="_blank" rel="noopener noreferrer">GitHub профиль</a></li>
                 </ul>
             </div>
@@ -406,7 +423,7 @@
         </div>
     </footer>
 
-    <!-- Скрипт интерактивных веб-технологий -->
+    <!-- Скрипт интерактивных технологий -->
     <script src="app.js"></script>
 </body>
 </html>
