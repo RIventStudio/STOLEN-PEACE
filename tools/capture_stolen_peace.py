@@ -3,7 +3,7 @@ import random
 import subprocess
 from PIL import Image, ImageDraw
 
-def capture_stolen_peace(url="https://riventstudio.github.io/STOLEN-PEACE/", output_path=r"C:\Users\alexa\.gemini\antigravity\scratch\STOLEN-PEACE\docs\preview_live_styled.png", width=1440, height=950, tab_title="STOLEN PEACE — RIventStudio"):
+def capture_stolen_peace(url="https://riventstudio.github.io/STOLEN-PEACE/", output_path=r"C:\Users\alexa\.gemini\antigravity\scratch\STOLEN-PEACE\docs\preview_live_styled.png", width=2560, height=1440, tab_title="STOLEN PEACE — RIventStudio"):
     abs_out = os.path.abspath(output_path)
     os.makedirs(os.path.dirname(abs_out), exist_ok=True)
     temp_raw = abs_out + ".raw.png"

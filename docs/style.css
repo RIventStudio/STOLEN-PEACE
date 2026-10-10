@@ -176,10 +176,32 @@ body {
 
 .hud-timer {
     letter-spacing: 0.1em;
+    font-variant-numeric: tabular-nums;
 }
 
 .hud-res {
     color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#hud-res-name {
+    color: var(--hud-color);
+    font-weight: 700;
+}
+
+#hud-fps-val {
+    color: var(--hud-accent);
+    font-weight: 700;
+    min-width: 16px;
+    text-align: right;
+}
+
+.hud-raw-tag {
+    color: var(--text-muted);
+    opacity: 0.85;
 }
 
 /* Переключатели режимов зрения */

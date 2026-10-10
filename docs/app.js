@@ -538,30 +538,152 @@
 
 
     // =========================================================================
-    // 6. ТАЙМКОД ВИДОИСКАТЕЛЯ (НА ТИВНЫЙ TEMPORAL API С ЛЕГКИМ ФОЛБЭКОМ < 20 СТРОК)
+    // 6. РЕАЛЬНОЕ ВРЕМЯ (TEMPORAL API), РЕАЛЬНОЕ РАЗРЕШЕНИЕ И РЕАЛЬНЫЙ FPS
     // =========================================================================
     const timerElem = document.getElementById('hud-timer');
-    if (timerElem) {
-        let startTime = Date.now();
-        setInterval(() => {
-            if (typeof Temporal !== 'undefined' && Temporal.Now) {
-                const now = Temporal.Now.zonedDateTimeISO();
-                const h = String(now.hour).padStart(2, '0');
-                const m = String(now.minute).padStart(2, '0');
-                const s = String(now.second).padStart(2, '0');
-                const ms = String(Math.floor(now.millisecond / 16.6)).padStart(2, '0');
-                timerElem.textContent = `${h}:${m}:${s}:${ms}`;
-            } else {
-                // Нативный Temporal fallback (< 15 строк)
-                const elapsed = Date.now() - startTime;
-                const hours = String(Math.floor(elapsed / 3600000)).padStart(2, '0');
-                const mins = String(Math.floor((elapsed % 3600000) / 60000)).padStart(2, '0');
-                const secs = String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0');
-                const frames = String(Math.floor((elapsed % 1000) / 16.6)).padStart(2, '0');
-                timerElem.textContent = `${hours}:${mins}:${secs}:${frames}`;
-            }
-        }, 33);
+    const resNameElem = document.getElementById('hud-res-name');
+    const fpsValElem = document.getElementById('hud-fps-val');
+    const hudResElem = document.getElementById('hud-res');
+
+    // 6.1. РЕАЛЬНОЕ СИСТЕМНОЕ ВРЕМЯ (ЧЧ:ММ:СС:КК)
+    function updateRealTimecode() {
+        if (!timerElem) return;
+        let h, m, s, frames;
+        if (typeof Temporal !== 'undefined' && Temporal.Now) {
+            try {
+                const now = Temporal.Now.plainTimeISO();
+                h = String(now.hour).padStart(2, '0');
+                m = String(now.minute).padStart(2, '0');
+                s = String(now.second).padStart(2, '0');
+                frames = String(Math.floor((now.millisecond / 1000) * 60)).padStart(2, '0');
+            } catch (_) {}
+        }
+        if (!h) {
+            const now = new Date();
+            h = String(now.getHours()).padStart(2, '0');
+            m = String(now.getMinutes()).padStart(2, '0');
+            s = String(now.getSeconds()).padStart(2, '0');
+            frames = String(Math.floor((now.getMilliseconds() / 1000) * 60)).padStart(2, '0');
+        }
+        timerElem.textContent = `${h}:${m}:${s}:${frames}`;
     }
+    setInterval(updateRealTimecode, 33);
+    updateRealTimecode();
+
+    // 6.2. РЕАЛЬНОЕ РАЗРЕШЕНИЕ (БЛИЖАЙШЕЕ НАЗВАНИЕ С УЧЕТОМ ОРИЕНТАЦИИ И ТЕЛЕФОНОВ)
+    const RESOLUTION_DB = [
+        { name: '8K UHD', w: 7680, h: 4320 },
+        { name: '6K', w: 6016, h: 3384 },
+        { name: '5K', w: 5120, h: 2880 },
+        { name: 'DQHD', w: 5120, h: 1440 },
+        { name: '4K DCI', w: 4096, h: 2160 },
+        { name: '4K UHD', w: 3840, h: 2160 },
+        { name: 'UW4K', w: 3840, h: 1600 },
+        { name: 'UWQHD', w: 3440, h: 1440 },
+        { name: 'WQHD+', w: 3200, h: 1440 },
+        { name: 'WQHD+', w: 3088, h: 1440 },
+        { name: '3K', w: 3000, h: 2000 },
+        { name: 'QHD+', w: 2880, h: 1800 },
+        { name: 'QHD+', w: 2880, h: 1440 },
+        { name: 'Super Retina XDR', w: 2796, h: 1290 },
+        { name: 'Super Retina XDR', w: 2778, h: 1284 },
+        { name: '1.5K', w: 2712, h: 1220 },
+        { name: '2.5K Retina', w: 2560, h: 1600 },
+        { name: 'QHD', w: 2560, h: 1440 },
+        { name: 'Super Retina', w: 2556, h: 1179 },
+        { name: 'Super Retina', w: 2532, h: 1170 },
+        { name: 'UW-FHD', w: 2560, h: 1080 },
+        { name: 'FHD+', w: 2460, h: 1080 },
+        { name: 'FHD+', w: 2400, h: 1080 },
+        { name: 'FHD+', w: 2340, h: 1080 },
+        { name: 'WUXGA', w: 1920, h: 1200 },
+        { name: 'FHD', w: 1920, h: 1080 },
+        { name: 'WSXGA+', w: 1680, h: 1050 },
+        { name: 'UXGA', w: 1600, h: 1200 },
+        { name: 'HD+', w: 1640, h: 720 },
+        { name: 'HD+', w: 1600, h: 720 },
+        { name: 'HD+', w: 1560, h: 720 },
+        { name: 'HD+', w: 1600, h: 900 },
+        { name: 'WXGA', w: 1366, h: 768 },
+        { name: 'WXGA', w: 1280, h: 800 },
+        { name: 'HD', w: 1280, h: 720 },
+        { name: 'XGA', w: 1024, h: 768 },
+        { name: 'WSVGA', w: 1024, h: 600 },
+        { name: 'qHD', w: 960, h: 540 },
+        { name: 'FWVGA', w: 854, h: 480 },
+        { name: 'WVGA', w: 800, h: 480 },
+        { name: 'SVGA', w: 800, h: 600 },
+        { name: 'VGA', w: 640, h: 480 },
+        { name: 'nHD', w: 640, h: 360 },
+        { name: 'HVGA', w: 480, h: 320 },
+        { name: 'QVGA', w: 320, h: 240 }
+    ];
+
+    function updateRealResolution() {
+        const dpr = window.devicePixelRatio || 1;
+        const winW = Math.round(window.innerWidth * dpr);
+        const winH = Math.round(window.innerHeight * dpr);
+        const scrW = Math.round((window.screen?.width || 0) * dpr);
+        const scrH = Math.round((window.screen?.height || 0) * dpr);
+
+        // На реальном мониторе/смартфоне компенсируем высоту интерфейса браузера (панели/таскбар),
+        // а при оконном режиме используем размеры активного окна:
+        const curW = (scrW > winW && winW >= (scrW * 0.82)) ? scrW : winW;
+        const curH = (scrH > winH && winH >= (scrH * 0.82)) ? scrH : winH;
+
+        // Нормализация ориентации (длинная сторона и короткая сторона)
+        const curLong = Math.max(curW, curH);
+        const curShort = Math.min(curW, curH);
+
+        let bestMatch = 'FHD';
+        let minDiff = Infinity;
+
+        for (let i = 0; i < RESOLUTION_DB.length; i++) {
+            const item = RESOLUTION_DB[i];
+            const targetLong = Math.max(item.w, item.h);
+            const targetShort = Math.min(item.w, item.h);
+
+            const diff = Math.pow((curLong - targetLong) / targetLong, 2) +
+                         Math.pow((curShort - targetShort) / targetShort, 2);
+
+            if (diff < minDiff) {
+                minDiff = diff;
+                bestMatch = item.name;
+            }
+        }
+
+        if (resNameElem) {
+            resNameElem.textContent = bestMatch;
+        }
+        if (hudResElem) {
+            const isPortrait = (window.innerHeight > window.innerWidth);
+            const orient = isPortrait ? 'Портрет' : 'Альбом';
+            hudResElem.setAttribute('title', `Реальное разрешение: ${curW}×${curH} (${bestMatch}, ${orient}, DPR: ${dpr.toFixed(1)})`);
+        }
+    }
+
+    updateRealResolution();
+    window.addEventListener('resize', updateRealResolution, { passive: true });
+    window.addEventListener('orientationchange', updateRealResolution, { passive: true });
+
+    // 6.3. РЕАЛЬНЫЙ FPS (ИЗМЕРЕНИЕ ЧЕРЕЗ requestAnimationFrame)
+    let fpsFrames = 0;
+    let fpsPrevTime = performance.now();
+
+    function calcRealFps(now) {
+        fpsFrames++;
+        const delta = now - fpsPrevTime;
+        if (delta >= 500) {
+            const currentFps = Math.min(999, Math.max(1, Math.round((fpsFrames * 1000) / delta)));
+            if (fpsValElem) {
+                fpsValElem.textContent = String(currentFps);
+            }
+            fpsFrames = 0;
+            fpsPrevTime = now;
+        }
+        requestAnimationFrame(calcRealFps);
+    }
+    requestAnimationFrame(calcRealFps);
 
 
     // =========================================================================
