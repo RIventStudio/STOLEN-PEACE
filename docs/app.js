@@ -53,10 +53,16 @@
         ctx.clearRect(0, 0, width, height);
 
         const visionMode = document.documentElement.getAttribute('data-vision') || 'normal';
+        
+        // Коэффициент скролла: в Hero-секции полная тьма, ниже — легкая кинематографическая тень
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const heroThreshold = (window.innerHeight || 800) * 0.7;
+        const scrollFactor = Math.min(1, Math.max(0, scrollY / heroThreshold));
 
         if (visionMode === 'nvg') {
-            // Режим ночного видения: полупрозрачная зеленоватая темнота и мощный луч
-            ctx.fillStyle = 'rgba(1, 15, 6, 0.7)';
+            // Режим ночного видения: фосфорный зеленый
+            const nvgAlpha = 0.72 - (scrollFactor * 0.40);
+            ctx.fillStyle = `rgba(1, 15, 6, ${nvgAlpha})`;
             ctx.fillRect(0, 0, width, height);
 
             if (isMouseOnScreen) {
@@ -74,12 +80,13 @@
                 ctx.globalCompositeOperation = 'source-over';
             }
         } else if (visionMode === 'vhs') {
-            // Режим VHS: сине-фиолетовая виньетка
-            ctx.fillStyle = 'rgba(7, 6, 12, 0.85)';
+            // Режим VHS: аналоговая пленка и виньетка
+            const vhsAlpha = 0.82 - (scrollFactor * 0.48);
+            ctx.fillStyle = `rgba(7, 6, 12, ${vhsAlpha})`;
             ctx.fillRect(0, 0, width, height);
 
             if (isMouseOnScreen) {
-                const radius = Math.min(width, height) * 0.32;
+                const radius = Math.min(width, height) * 0.35;
                 const grad = ctx.createRadialGradient(mouseX, mouseY, 30, mouseX, mouseY, radius);
                 grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
                 grad.addColorStop(0.6, 'rgba(255, 255, 255, 0.4)');
@@ -93,16 +100,17 @@
                 ctx.globalCompositeOperation = 'source-over';
             }
         } else {
-            // Обычный режим: кромешная тьма и реалистичный луч теплого фонаря
-            ctx.fillStyle = 'rgba(5, 6, 9, 0.92)';
+            // Обычный режим: в Hero плотная тьма (0.88), при скролле к контенту — комфортная атмосфера (0.28)
+            const baseAlpha = 0.88 - (scrollFactor * 0.60);
+            ctx.fillStyle = `rgba(5, 6, 9, ${baseAlpha})`;
             ctx.fillRect(0, 0, width, height);
 
             if (isMouseOnScreen) {
-                const radius = Math.min(width, height) * 0.34;
+                const radius = Math.min(width, height) * 0.36;
                 const grad = ctx.createRadialGradient(mouseX, mouseY, 15, mouseX, mouseY, radius);
                 grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-                grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
-                grad.addColorStop(0.85, 'rgba(255, 255, 255, 0.15)');
+                grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.55)');
+                grad.addColorStop(0.85, 'rgba(255, 255, 255, 0.18)');
                 grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
                 ctx.globalCompositeOperation = 'destination-out';

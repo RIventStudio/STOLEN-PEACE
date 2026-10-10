@@ -1,7 +1,18 @@
-# Отключаем Git LFS для статических веб-ассетов документации и GitHub Pages
-* -filter -diff -merge
-*.jpg -filter -diff -merge
-*.jpeg -filter -diff -merge
-*.png -filter -diff -merge
-*.webp -filter -diff -merge
-*.svg -filter -diff -merge
+# Отключаем Git LFS для всех веб-файлов документации
+* -filter
+
+# Текстовые веб-исходники
+*.html text diff
+*.css text diff
+*.js text diff
+*.md text diff
+*.nojekyll text
+*.svg text diff
+
+# Бинарные веб-изображения (без Git LFS)
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.gif binary
+*.ico binary
