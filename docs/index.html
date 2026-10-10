@@ -190,11 +190,11 @@
                 <p class="section-lead">Реальные кадры игровых сцен STOLEN PEACE: от туманной дороги до мрачных комнат</p>
 
                 <div class="gallery-grid">
-                    <!-- Арт 1: Экстерьер ночного дома -->
-                    <div class="gallery-card tilt-card" data-tilt>
+                    <!-- Арт 1: Экстерьер ночного дома (клик на все превью открывает <dialog>) -->
+                    <div class="gallery-card tilt-card clickable-preview" data-tilt role="button" tabindex="0" data-dialog="modal-sign" aria-haspopup="dialog" aria-label="Открыть фото особняка в полном размере">
                         <div class="gallery-img-box">
                             <img src="assets/hero_sign_night.jpg" alt="Особняк при лунном свете" class="gallery-img" loading="lazy">
-                            <button type="button" class="zoom-btn" popovertarget="modal-sign" title="Развернуть фото">&#128269;</button>
+                            <div class="preview-tap-hint">Кликните для просмотра</div>
                         </div>
                         <div class="gallery-info">
                             <span class="gallery-tag">EXTERIOR SCENE</span>
@@ -203,11 +203,11 @@
                         </div>
                     </div>
 
-                    <!-- Арт 2: Интерьер кухни -->
-                    <div class="gallery-card tilt-card" data-tilt>
+                    <!-- Арт 2: Интерьер кухни (клик на все превью открывает <dialog>) -->
+                    <div class="gallery-card tilt-card clickable-preview" data-tilt role="button" tabindex="0" data-dialog="modal-kitchen" aria-haspopup="dialog" aria-label="Открыть фото кухни в полном размере">
                         <div class="gallery-img-box">
                             <img src="assets/interior_kitchen.jpg" alt="Винтажная кухня особняка" class="gallery-img" loading="lazy">
-                            <button type="button" class="zoom-btn" popovertarget="modal-kitchen" title="Развернуть фото">&#128269;</button>
+                            <div class="preview-tap-hint">Кликните для просмотра</div>
                         </div>
                         <div class="gallery-info">
                             <span class="gallery-tag">INTERIOR SCENE</span>
@@ -215,47 +215,26 @@
                             <p class="gallery-desc">Теплый свет одинокой настенной лампы и следы брошенной посуды.</p>
                         </div>
                     </div>
-
-                    <!-- Арт 3: Туманная дорога и машина -->
-                    <div class="gallery-card tilt-card" data-tilt>
-                        <div class="gallery-img-box">
-                            <img src="assets/cover_car_fog.jpg" alt="Туманная дорога к дому" class="gallery-img" loading="lazy">
-                            <button type="button" class="zoom-btn" popovertarget="modal-car" title="Развернуть фото">&#128269;</button>
-                        </div>
-                        <div class="gallery-info">
-                            <span class="gallery-tag">CINEMATIC ART</span>
-                            <h3 class="gallery-title">Свет фар в густом тумане</h3>
-                            <p class="gallery-desc">Точка невозврата: прибытие на место расследования.</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Модальные окна полноэкранного просмотра (Popover API) -->
-        <div id="modal-sign" popover="auto" class="photo-modal">
-            <div class="modal-box">
-                <button type="button" class="modal-close" popovertarget="modal-sign" popovertargetaction="hide">&times;</button>
-                <img src="assets/hero_sign_night.jpg" alt="Особняк при лунном свете" class="modal-full-img">
-                <div class="modal-caption">STOLEN PEACE &bull; Главный ночной пейзаж с вывеской особняка</div>
+        <!-- Нативные модальные окна <dialog> с фокусом, закрытием по Esc и клику мимо -->
+        <dialog id="modal-sign" class="photo-dialog" aria-labelledby="caption-sign">
+            <div class="dialog-inner">
+                <button type="button" class="dialog-close-btn" aria-label="Закрыть окно">&times;</button>
+                <img src="assets/hero_sign_night.jpg" alt="Особняк при лунном свете" class="dialog-full-img">
+                <div class="dialog-caption" id="caption-sign">STOLEN PEACE &bull; Главный ночной пейзаж с вывеской особняка</div>
             </div>
-        </div>
+        </dialog>
 
-        <div id="modal-kitchen" popover="auto" class="photo-modal">
-            <div class="modal-box">
-                <button type="button" class="modal-close" popovertarget="modal-kitchen" popovertargetaction="hide">&times;</button>
-                <img src="assets/interior_kitchen.jpg" alt="Винтажная кухня особняка" class="modal-full-img">
-                <div class="modal-caption">STOLEN PEACE &bull; Интерьерная сцена кухни и поиск улик</div>
+        <dialog id="modal-kitchen" class="photo-dialog" aria-labelledby="caption-kitchen">
+            <div class="dialog-inner">
+                <button type="button" class="dialog-close-btn" aria-label="Закрыть окно">&times;</button>
+                <img src="assets/interior_kitchen.jpg" alt="Винтажная кухня особняка" class="dialog-full-img">
+                <div class="dialog-caption" id="caption-kitchen">STOLEN PEACE &bull; Интерьерная сцена кухни и поиск улик</div>
             </div>
-        </div>
-
-        <div id="modal-car" popover="auto" class="photo-modal">
-            <div class="modal-box">
-                <button type="button" class="modal-close" popovertarget="modal-car" popovertargetaction="hide">&times;</button>
-                <img src="assets/cover_car_fog.jpg" alt="Туманная дорога к дому" class="modal-full-img">
-                <div class="modal-caption">STOLEN PEACE &bull; Подъездная дорога сквозь туман</div>
-            </div>
-        </div>
+        </dialog>
 
         <!-- 4. КЛЮЧЕВЫЕ МЕХАНИКИ C# И UNITY -->
         <section class="mechanics-section scroll-reveal" id="mechanics">

@@ -1,12 +1,18 @@
 /**
- * STOLEN PEACE — Cutting-Edge Interactive Web Engine
+ * STOLEN PEACE — Cutting-Edge Native Web Engine
+ * 
  * Features:
- * - Dynamic Flashlight Beam & Dark Fog Canvas with LERP tracking
- * - VHS Mode with Heavy 10-40% Tape Interference & Glitch Tearing
- * - Procedural Web Audio API Sound Generator (Binaural Drone & Clicks) — ON by default
- * - Vision Mode Auto-Cycle (Every 20s) with 1-Minute Manual Override Pause
- * - Living Capital Letters ("Живые" заглавные буквы): Magnet pull 20-40px & 5s vibration 5-15px
- * - 3D Card Tilt Physics & Fullscreen Popovers
+ * - Dynamic Flashlight Beam (+20% Brightness & Expanded Illuminance)
+ * - Native <dialog> Modals with Full Card Click & Esc/Backdrop Click
+ * - Native View Transitions API for Vision Modes
+ * - Native Temporal API for Timecode with <20 line fallback
+ * - Auto-playing Web Audio with 30-90s Smooth Breathing Volume Modulation (-30%)
+ * - Audio-Volume Bound Living Capital Letters:
+ *   * At lower volume level: letters DO NOT vibrate (amplitude = 0)
+ *   * At upper volume level: full vibration (5-15px)
+ * - 20s Auto-Cycle with 60s Manual Override Pause
+ * - VHS Mode with Heavy 10-40% Tape Interference
+ * 
  * Author: RIventStudio (Неменущий Артём Витальевич)
  */
 
@@ -14,7 +20,7 @@
     'use strict';
 
     // =========================================================================
-    // 1. ДИНАМИЧЕСКИЙ ХОЛСТ ФОНАРЯ И ПОМЕХ VHS (10-40%)
+    // 1. ДИНАМИЧЕСКИЙ ХОЛСТ ФОНАРЯ (+20% ЯРКОСТИ) И VHS ПОМЕХИ (10-40%)
     // =========================================================================
     const canvas = document.getElementById('flashlight-canvas');
     if (!canvas) return;
@@ -45,7 +51,7 @@
         isMouseOnScreen = false;
     });
 
-    // Отрисовка луча фонаря, тьмы и сильных помех VHS в цикле RAF
+    // Отрисовка луча фонаря (яркость увеличена на 20%) и помех VHS
     function renderFlashlight() {
         // Линейная интерполяция движения луча (Smooth LERP)
         mouseX += (targetX - mouseX) * 0.15;
@@ -55,22 +61,23 @@
 
         const visionMode = document.documentElement.getAttribute('data-vision') || 'nvg';
         
-        // Коэффициент скролла: в Hero-секции плотная атмосфера, ниже — мягкая комфортная тень
+        // Коэффициент скролла: в Hero-секции атмосфера, ниже — комфортное чтение
         const scrollY = window.scrollY || window.pageYOffset || 0;
         const heroThreshold = (window.innerHeight || 800) * 0.7;
         const scrollFactor = Math.min(1, Math.max(0, scrollY / heroThreshold));
 
         if (visionMode === 'nvg') {
-            // Режим ночного видения (по умолчанию): фосфорный зеленый луч и полупрозрачная тьма
-            const nvgAlpha = 0.72 - (scrollFactor * 0.40);
+            // Режим ночного видения: фосфорный луч (+20% яркости и охвата)
+            const nvgAlpha = 0.64 - (scrollFactor * 0.35); // на 20% светлее фон
             ctx.fillStyle = `rgba(1, 15, 6, ${nvgAlpha})`;
             ctx.fillRect(0, 0, width, height);
 
             if (isMouseOnScreen) {
-                const radius = Math.min(width, height) * 0.38;
-                const grad = ctx.createRadialGradient(mouseX, mouseY, 20, mouseX, mouseY, radius);
-                grad.addColorStop(0, 'rgba(0, 255, 102, 0.45)');
-                grad.addColorStop(0.5, 'rgba(0, 255, 102, 0.15)');
+                // Радиус увеличен на 20%: с 0.38 до 0.46
+                const radius = Math.min(width, height) * 0.46;
+                const grad = ctx.createRadialGradient(mouseX, mouseY, 25, mouseX, mouseY, radius);
+                grad.addColorStop(0, 'rgba(0, 255, 102, 0.65)'); // на 20% ярче центр
+                grad.addColorStop(0.5, 'rgba(0, 255, 102, 0.26)');
                 grad.addColorStop(1, 'rgba(1, 15, 6, 0)');
 
                 ctx.globalCompositeOperation = 'destination-out';
@@ -81,16 +88,17 @@
                 ctx.globalCompositeOperation = 'source-over';
             }
         } else if (visionMode === 'vhs') {
-            // Режим VHS: аналоговая пленка и СИЛЬНЫЕ ПОМЕХИ (10-40%)
-            const vhsAlpha = 0.82 - (scrollFactor * 0.48);
+            // Режим VHS: аналоговая пленка (+20% яркости луча) и сильные помехи (10-40%)
+            const vhsAlpha = 0.74 - (scrollFactor * 0.44);
             ctx.fillStyle = `rgba(7, 6, 12, ${vhsAlpha})`;
             ctx.fillRect(0, 0, width, height);
 
             if (isMouseOnScreen) {
-                const radius = Math.min(width, height) * 0.35;
-                const grad = ctx.createRadialGradient(mouseX, mouseY, 30, mouseX, mouseY, radius);
-                grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
-                grad.addColorStop(0.6, 'rgba(255, 255, 255, 0.4)');
+                // Радиус увеличен на 20%: с 0.35 до 0.42
+                const radius = Math.min(width, height) * 0.42;
+                const grad = ctx.createRadialGradient(mouseX, mouseY, 35, mouseX, mouseY, radius);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                grad.addColorStop(0.55, 'rgba(255, 255, 255, 0.55)');
                 grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
                 ctx.globalCompositeOperation = 'destination-out';
@@ -102,21 +110,18 @@
             }
 
             // === ГЕНЕРАЦИЯ СИЛЬНЫХ ПОМЕХ VHS (10-40%) ===
-            // 1. Горизонтальные разрывы видеотракта (tape tears) с хроматическим сдвигом
-            const glitchCount = Math.floor(4 + Math.random() * 5); // 4-8 полос
+            const glitchCount = Math.floor(4 + Math.random() * 5);
             for (let i = 0; i < glitchCount; i++) {
                 const bandY = Math.random() * height;
-                const bandH = 2 + Math.random() * 12; // толщина 2-14px
-                const noiseIntensity = 0.10 + Math.random() * 0.30; // ровно 10% - 40% помехи!
+                const bandH = 2 + Math.random() * 12;
+                const noiseIntensity = 0.10 + Math.random() * 0.30; // 10% - 40% помехи!
                 
-                // Чередование RGB-каналов VHS (красный/голубой глитч)
                 ctx.fillStyle = i % 2 === 0 
                     ? `rgba(255, 0, 75, ${noiseIntensity})` 
                     : `rgba(0, 240, 255, ${noiseIntensity})`;
                 ctx.fillRect(0, bandY, width, bandH);
             }
 
-            // 2. Статический аналоговый белый шум (зернистость пленки 10-40%)
             const grainIntensity = 0.10 + Math.random() * 0.30;
             ctx.fillStyle = `rgba(255, 255, 255, ${grainIntensity})`;
             for (let j = 0; j < 35; j++) {
@@ -127,17 +132,18 @@
             }
 
         } else {
-            // Обычный режим: классический свет фонаря
-            const baseAlpha = 0.88 - (scrollFactor * 0.60);
+            // Обычный режим: классический свет фонаря (+20% яркости и охвата)
+            const baseAlpha = 0.80 - (scrollFactor * 0.55); // на 20% светлее
             ctx.fillStyle = `rgba(5, 6, 9, ${baseAlpha})`;
             ctx.fillRect(0, 0, width, height);
 
             if (isMouseOnScreen) {
-                const radius = Math.min(width, height) * 0.36;
-                const grad = ctx.createRadialGradient(mouseX, mouseY, 15, mouseX, mouseY, radius);
+                // Радиус увеличен на 22%: с 0.36 до 0.44
+                const radius = Math.min(width, height) * 0.44;
+                const grad = ctx.createRadialGradient(mouseX, mouseY, 20, mouseX, mouseY, radius);
                 grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-                grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.55)');
-                grad.addColorStop(0.85, 'rgba(255, 255, 255, 0.18)');
+                grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.70)'); // ярче на 20%
+                grad.addColorStop(0.85, 'rgba(255, 255, 255, 0.25)'); // ярче
                 grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
                 ctx.globalCompositeOperation = 'destination-out';
@@ -155,13 +161,19 @@
 
 
     // =========================================================================
-    // 2. ПРОЦЕДУРНЫЙ WEB AUDIO API (ВКЛЮЧЕНО ПО УМОЛЧАНИЮ)
+    // 2. АВТО-ВОСПРОИЗВЕДЕНИЕ АУДИО И МОДУЛЯЦИЯ ГРОМКОСТИ (-30%, ПЕРИОД 60 СЕК)
     // =========================================================================
     let audioCtx = null;
     let droneOsc1 = null;
     let droneOsc2 = null;
     let droneGain = null;
-    let isAudioPlaying = true; // AUDIO ПО УМОЛЧАНИЮ ВКЛЮЧЕНО!
+    let isAudioPlaying = true; // Аудио воспроизводится сразу при открытии!
+
+    // Переменные для модуляции громкости и связи с живыми буквами
+    const VOLUME_PERIOD_MS = 60000; // Период модуляции громкости: 60 сек (диапазон 30-90 сек)
+    const BASE_GAIN = 0.12;
+    let currentVolumeRatio = 1.0; // от 0.70 (-30%) до 1.0 (макс)
+    let normalizedVibeFactor = 1.0; // от 0.0 (буквы не дрожат) до 1.0 (полное дрожание)
 
     function initAudio() {
         if (audioCtx) return;
@@ -175,18 +187,16 @@
         droneGain = audioCtx.createGain();
 
         droneOsc1.type = 'sine';
-        droneOsc1.frequency.value = 48; // Низкий бас
+        droneOsc1.frequency.value = 48;
 
         droneOsc2.type = 'triangle';
-        droneOsc2.frequency.value = 51.5; // Бинауральные биения 3.5Hz
+        droneOsc2.frequency.value = 51.5;
 
         filter.type = 'lowpass';
         filter.frequency.value = 180;
 
         droneGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-        if (isAudioPlaying) {
-            droneGain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 1.2);
-        }
+        droneGain.gain.exponentialRampToValueAtTime(BASE_GAIN, audioCtx.currentTime + 0.8);
 
         droneOsc1.connect(filter);
         droneOsc2.connect(filter);
@@ -197,31 +207,53 @@
         droneOsc2.start();
     }
 
-    // Автоматический старт аудио при загрузке или на первом же взаимодействии
-    function autoStartAudio() {
+    // Немедленный запуск звука при загрузке страницы
+    function startAudioImmediately() {
         initAudio();
         if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume().then(() => {
-                if (droneGain && isAudioPlaying) {
-                    droneGain.gain.setTargetAtTime(0.12, audioCtx.currentTime, 0.5);
-                }
-            }).catch(() => {});
+            audioCtx.resume().catch(() => {});
         }
     }
 
-    // Слушатели для гарантированного обхода Autoplay Policy браузера
-    ['pointerdown', 'mousemove', 'wheel', 'keydown', 'touchstart'].forEach((evt) => {
+    // Запускаем сразу на старте
+    try {
+        startAudioImmediately();
+    } catch (_) {}
+
+    // Гарантированный запуск при любом первом касании/движении/фокусе/загрузке
+    ['DOMContentLoaded', 'load', 'pageshow', 'focus', 'pointerdown', 'pointermove', 'mousemove', 'wheel', 'keydown', 'scroll', 'touchstart'].forEach((evt) => {
         window.addEventListener(evt, () => {
-            if (isAudioPlaying) autoStartAudio();
+            if (isAudioPlaying) {
+                startAudioImmediately();
+            }
         }, { once: true, passive: true });
     });
 
-    // Попытка прямого запуска
-    try {
-        autoStartAudio();
-    } catch (_) {}
+    // Плавное циклическое дыхание громкости (уменьшение на 30% и возврат каждые 60 секунд)
+    function updateVolumeBreathing() {
+        const cycleProgress = (performance.now() % VOLUME_PERIOD_MS) / VOLUME_PERIOD_MS;
+        
+        // Синусоида: sin=-1 -> громкость 1.0 (макс, vibe=1.0)
+        //            sin=+1 -> громкость 0.70 (-30%, vibe=0.0)
+        const sinWave = Math.sin(cycleProgress * Math.PI * 2);
+        
+        // currentVolumeRatio: от 1.0 (верхний уровень) до 0.70 (нижний уровень, ровно -30%)
+        currentVolumeRatio = 0.85 - (0.15 * sinWave);
+        
+        // normalizedVibeFactor: 0.0 на нижнем уровне (0.70), 1.0 на верхнем уровне (1.0)
+        normalizedVibeFactor = (currentVolumeRatio - 0.70) / 0.30;
+        normalizedVibeFactor = Math.max(0, Math.min(1, normalizedVibeFactor));
 
-    // Звуковой щелчок переключения тумблера камеры
+        if (isAudioPlaying && droneGain && audioCtx && audioCtx.state === 'running') {
+            const targetGain = BASE_GAIN * currentVolumeRatio;
+            droneGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.2);
+        }
+
+        requestAnimationFrame(updateVolumeBreathing);
+    }
+    requestAnimationFrame(updateVolumeBreathing);
+
+    // Звуковой щелчок тумблера камеры
     function playSwitchSound() {
         if (!audioCtx) initAudio();
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -243,7 +275,7 @@
         osc.stop(audioCtx.currentTime + 0.05);
     }
 
-    // Звук клика улик
+    // Звук клика по превью
     function playInteractSound() {
         if (!audioCtx) initAudio();
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -273,7 +305,7 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             if (!isAudioPlaying) {
-                droneGain.gain.setTargetAtTime(0.12, audioCtx.currentTime, 0.4);
+                droneGain.gain.setTargetAtTime(BASE_GAIN * currentVolumeRatio, audioCtx.currentTime, 0.4);
                 isAudioPlaying = true;
                 audioToggleBtn.classList.add('playing');
                 audioToggleBtn.innerHTML = '<span class="audio-icon">&#128266;</span> <span class="audio-label">AUDIO: ON</span>';
@@ -290,15 +322,15 @@
 
 
     // =========================================================================
-    // 3. РЕЖИМЫ ЗРЕНИЯ: NVG ПО УМОЛЧАНИЮ, АВТОСМЕНА 20 СЕК + 1 МИН ПАУЗЫ
+    // 3. РЕЖИМЫ ЗРЕНИЯ: НА ТИВНЫЙ VIEW TRANSITIONS + АВТОСМЕНА 20 СЕК (ПАУЗА 1 МИН)
     // =========================================================================
     const VISION_MODES = ['nvg', 'vhs', 'normal'];
     let currentModeIndex = 0; // NVG по умолчанию
-    let manualCooldownUntil = 0; // Временная метка для 1 минуты паузы
+    let manualCooldownUntil = 0;
 
     const modeButtons = document.querySelectorAll('.mode-btn');
 
-    function applyVisionMode(mode, isManual = false) {
+    function executeModeSwitch(mode, isManual = false) {
         document.documentElement.setAttribute('data-vision', mode);
 
         modeButtons.forEach((b) => {
@@ -313,14 +345,23 @@
         if (currentModeIndex === -1) currentModeIndex = 0;
 
         if (isManual) {
-            // При ручном выборе: ровно 1 минута (60 000 мс) без автосмены!
-            manualCooldownUntil = Date.now() + 60000;
+            manualCooldownUntil = Date.now() + 60000; // 1 минута без автосмены
         }
 
         playSwitchSound();
     }
 
-    // Обработка ручного клика по кнопкам режимов
+    // Применение с нативным View Transitions API
+    function applyVisionMode(mode, isManual = false) {
+        if (document.startViewTransition) {
+            document.startViewTransition(() => {
+                executeModeSwitch(mode, isManual);
+            });
+        } else {
+            executeModeSwitch(mode, isManual);
+        }
+    }
+
     modeButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
             const targetMode = btn.getAttribute('data-mode');
@@ -328,10 +369,9 @@
         });
     });
 
-    // Автоматическая смена режимов каждые 20 секунд (если не действует минутная пауза)
     setInterval(() => {
         if (Date.now() < manualCooldownUntil) {
-            return; // Пропускаем автосмену, если действует 1-минутный кулдаун
+            return;
         }
         currentModeIndex = (currentModeIndex + 1) % VISION_MODES.length;
         applyVisionMode(VISION_MODES[currentModeIndex], false);
@@ -339,7 +379,8 @@
 
 
     // =========================================================================
-    // 4. "ЖИВЫЕ" ЗАГЛАВНЫЕ БУКВЫ (МАГНИТ 20-40PX, РЕЛИЗ 5 СЕК ДРОЖАНИЯ 5-15PX)
+    // 4. "ЖИВЫЕ" ЗАГЛАВНЫЕ БУКВЫ — АМПЛИТУДА ПРИВЯЗАНА К ГРОМКОСТИ АУДИО!
+    //    (На нижнем уровне громкости НЕ дрожат, на верхнем — дрожат 5-15px)
     // =========================================================================
     const livingLetters = [];
 
@@ -349,7 +390,6 @@
         );
 
         textElements.forEach((el) => {
-            // Используем TreeWalker для безопасного обхода текстовых узлов без повреждения тегов
             const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
             const textNodes = [];
             while (walker.nextNode()) {
@@ -358,7 +398,6 @@
 
             textNodes.forEach((node) => {
                 const text = node.nodeValue;
-                // Ищем заглавные буквы латиницы и кириллицы
                 if (/[A-ZА-ЯЁ]/.test(text)) {
                     const spanWrapper = document.createElement('span');
                     spanWrapper.innerHTML = text.replace(/([A-ZА-ЯЁ])/g, '<span class="living-cap">$1</span>');
@@ -367,7 +406,6 @@
             });
         });
 
-        // Регистрируем все найденные заглавные буквы
         document.querySelectorAll('.living-cap').forEach((span) => {
             livingLetters.push({
                 el: span,
@@ -378,7 +416,6 @@
         });
     }
 
-    // Инициализируем живые буквы
     initLivingCapitals();
 
     let curMouseX = -9999;
@@ -389,7 +426,6 @@
         curMouseY = e.clientY;
     }, { passive: true });
 
-    // Цикл физики притяжения и вибрации букв
     function updateLivingCapitals() {
         const now = performance.now();
         const MAGNET_RADIUS = 130;
@@ -398,7 +434,6 @@
             const item = livingLetters[i];
             const rect = item.el.getBoundingClientRect();
 
-            // Пропускаем буквы за пределами вьюпорта для максимального FPS
             if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
 
             const letterCenterX = rect.left + rect.width / 2;
@@ -407,8 +442,8 @@
             const dist = Math.hypot(curMouseX - letterCenterX, curMouseY - letterCenterY);
 
             if (dist < MAGNET_RADIUS && dist > 1) {
-                // Буква притягивается магнитом: сила от 20 до 40 pxls!
-                const pullPower = 20 + (1 - dist / MAGNET_RADIUS) * 20; // 20-40pxls
+                // Буква притягивается магнитом: сила 20-40 pxls!
+                const pullPower = 20 + (1 - dist / MAGNET_RADIUS) * 20;
                 const angle = Math.atan2(curMouseY - letterCenterY, curMouseX - letterCenterX);
                 const tx = Math.cos(angle) * pullPower;
                 const ty = Math.sin(angle) * pullPower;
@@ -416,26 +451,32 @@
                 item.el.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px)`;
                 item.el.classList.add('attracted');
                 item.isAttracted = true;
-                item.vibrateUntil = 0; // Сбрасываем таймер вибрации пока наведен курсор
+                item.vibrateUntil = 0;
             } else if (item.isAttracted) {
-                // Курсор покинул радиус магнита — МОМЕНТ РЕЛИЗА!
+                // Момент релиза: запускаем 5 секунд дрожания
                 item.isAttracted = false;
                 item.el.classList.remove('attracted');
-                item.vibrateUntil = now + 5000; // Ровно 5 секунд после релиза!
+                item.vibrateUntil = now + 5000;
                 item.releaseStart = now;
                 item.el.classList.add('vibrating');
             } else if (item.vibrateUntil > now) {
-                // В течение 5 секунд буква продолжает дрожать: амплитуда 5-15 pxls!
-                const remaining = item.vibrateUntil - now;
-                const progress = remaining / 5000; // от 1.0 до 0.0
-                const amp = 5 + progress * 10; // от 15px сразу после релиза до 5px перед остановкой
+                // === СВЯЗЬ АМПЛИТУДЫ С ГРОМКОСТЬЮ АУДИО ===
+                // На нижнем уровне громкости (normalizedVibeFactor <= 0.03): буквы НЕ ДРОЖАТ!
+                // На верхнем уровне громкости (normalizedVibeFactor == 1.0): дрожат как сейчас (5-15px)!
+                if (normalizedVibeFactor <= 0.03) {
+                    item.el.style.transform = 'translate(0, 0)';
+                } else {
+                    const remaining = item.vibrateUntil - now;
+                    const progress = remaining / 5000;
+                    const baseAmp = 5 + progress * 10; // от 15px до 5px
+                    const effectiveAmp = baseAmp * normalizedVibeFactor;
 
-                const jx = (Math.random() - 0.5) * 2 * amp;
-                const jy = (Math.random() - 0.5) * 2 * amp;
+                    const jx = (Math.random() - 0.5) * 2 * effectiveAmp;
+                    const jy = (Math.random() - 0.5) * 2 * effectiveAmp;
 
-                item.el.style.transform = `translate(${jx.toFixed(1)}px, ${jy.toFixed(1)}px)`;
+                    item.el.style.transform = `translate(${jx.toFixed(1)}px, ${jy.toFixed(1)}px)`;
+                }
             } else if (item.vibrateUntil !== 0) {
-                // 5 секунд истекли — возвращение в исходный покой
                 item.vibrateUntil = 0;
                 item.el.style.transform = '';
                 item.el.classList.remove('vibrating');
@@ -448,24 +489,84 @@
 
 
     // =========================================================================
-    // 5. ТАЙМКОД ВИДОИСКАТЕЛЯ (HUD Timecode)
+    // 5. НА ТИВНЫЕ МОДАЛЬНЫЕ ОКНА <dialog> И КЛИК ПО ВСЕМУ ПРЕВЬЮ
+    // =========================================================================
+    const photoDialogs = document.querySelectorAll('.photo-dialog');
+    photoDialogs.forEach((dialog) => {
+        // Закрытие по клику мимо контента (по нативному ::backdrop)
+        dialog.addEventListener('click', (e) => {
+            const rect = dialog.getBoundingClientRect();
+            const isInDialog = (
+                rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+                rect.left <= e.clientX && e.clientX <= rect.left + rect.width
+            );
+            if (!isInDialog) {
+                dialog.close();
+                playSwitchSound();
+            }
+        });
+
+        // Кнопка закрытия
+        const closeBtn = dialog.querySelector('.dialog-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                dialog.close();
+                playSwitchSound();
+            });
+        }
+    });
+
+    // Клик на ВСЕМ превью открывает соответствующий <dialog>
+    const clickablePreviews = document.querySelectorAll('.clickable-preview');
+    clickablePreviews.forEach((preview) => {
+        const dialogId = preview.getAttribute('data-dialog');
+        const targetDialog = document.getElementById(dialogId);
+        if (!targetDialog) return;
+
+        preview.addEventListener('click', () => {
+            targetDialog.showModal();
+            playInteractSound();
+        });
+
+        preview.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                targetDialog.showModal();
+                playInteractSound();
+            }
+        });
+    });
+
+
+    // =========================================================================
+    // 6. ТАЙМКОД ВИДОИСКАТЕЛЯ (НА ТИВНЫЙ TEMPORAL API С ЛЕГКИМ ФОЛБЭКОМ < 20 СТРОК)
     // =========================================================================
     const timerElem = document.getElementById('hud-timer');
     if (timerElem) {
         let startTime = Date.now();
         setInterval(() => {
-            const elapsed = Date.now() - startTime;
-            const hours = String(Math.floor(elapsed / 3600000)).padStart(2, '0');
-            const mins = String(Math.floor((elapsed % 3600000) / 60000)).padStart(2, '0');
-            const secs = String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0');
-            const frames = String(Math.floor((elapsed % 1000) / 16.6)).padStart(2, '0');
-            timerElem.textContent = `${hours}:${mins}:${secs}:${frames}`;
+            if (typeof Temporal !== 'undefined' && Temporal.Now) {
+                const now = Temporal.Now.zonedDateTimeISO();
+                const h = String(now.hour).padStart(2, '0');
+                const m = String(now.minute).padStart(2, '0');
+                const s = String(now.second).padStart(2, '0');
+                const ms = String(Math.floor(now.millisecond / 16.6)).padStart(2, '0');
+                timerElem.textContent = `${h}:${m}:${s}:${ms}`;
+            } else {
+                // Нативный Temporal fallback (< 15 строк)
+                const elapsed = Date.now() - startTime;
+                const hours = String(Math.floor(elapsed / 3600000)).padStart(2, '0');
+                const mins = String(Math.floor((elapsed % 3600000) / 60000)).padStart(2, '0');
+                const secs = String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0');
+                const frames = String(Math.floor((elapsed % 1000) / 16.6)).padStart(2, '0');
+                timerElem.textContent = `${hours}:${mins}:${secs}:${frames}`;
+            }
         }, 33);
     }
 
 
     // =========================================================================
-    // 6. 3D CARD TILT ЭФФЕКТ (Interactive Tilt Physics)
+    // 7. 3D CARD TILT ЭФФЕКТ
     // =========================================================================
     const tiltCards = document.querySelectorAll('.tilt-card');
     tiltCards.forEach((card) => {
@@ -481,17 +582,6 @@
         card.addEventListener('mouseleave', () => {
             card.style.setProperty('--tilt-x', '0');
             card.style.setProperty('--tilt-y', '0');
-        });
-    });
-
-
-    // =========================================================================
-    // 7. ЗВУКОВОЙ ОТКЛИК УЛИК (Popovers Audio Integration)
-    // =========================================================================
-    const evidenceTriggers = document.querySelectorAll('.zoom-btn');
-    evidenceTriggers.forEach((trigger) => {
-        trigger.addEventListener('click', () => {
-            playInteractSound();
         });
     });
 
