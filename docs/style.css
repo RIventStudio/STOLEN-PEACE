@@ -1418,6 +1418,308 @@ body {
     .footer-inner { flex-direction: column; gap: 32px; }
 }
 
+/* =========================================================================
+   17. VHS С СИЛЬНЫМИ ПОМЕХАМИ (10-40%)
+   ========================================================================= */
+[data-vision="vhs"] body {
+    animation: vhsBodyJitter 6s infinite steps(2);
+}
+
+@keyframes vhsBodyJitter {
+    0%, 94%, 100% { transform: translate(0, 0); }
+    95% { transform: translate(-3px, 1px); }
+    96% { transform: translate(2px, -2px); }
+    97% { transform: translate(-1px, 2px); }
+    98% { transform: translate(3px, 0); }
+}
+
+[data-vision="vhs"] .scratch-title,
+[data-vision="vhs"] .section-heading,
+[data-vision="vhs"] .news-title {
+    text-shadow: 3px 0 rgba(255, 0, 75, 0.75), -3px 0 rgba(0, 240, 255, 0.75), 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+[data-vision="vhs"] .hud-scanlines {
+    opacity: 0.85;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.45) 0px, rgba(0, 0, 0, 0.45) 2px, transparent 2px, transparent 4px),
+                linear-gradient(180deg, rgba(255, 0, 75, 0.12) 0%, transparent 50%, rgba(0, 240, 255, 0.12) 100%);
+    animation: vhsTracking 4s infinite linear, vhsNoiseFlicker 0.15s infinite alternate;
+}
+
+@keyframes vhsNoiseFlicker {
+    0% { opacity: 0.75; }
+    50% { opacity: 0.95; }
+    100% { opacity: 0.80; }
+}
+
+/* =========================================================================
+   18. "ЖИВЫЕ" ЗАГЛАВНЫЕ БУКВЫ (Magnetic Pull 20-40px & Jitter 5-15px for 5s)
+   ========================================================================= */
+.living-cap {
+    display: inline-block;
+    position: relative;
+    will-change: transform, color, text-shadow;
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.living-cap.attracted {
+    color: var(--accent-red) !important;
+    text-shadow: 0 0 12px var(--accent-red-glow), 0 0 2px #ffffff !important;
+    font-weight: 700;
+    z-index: 5;
+}
+
+.living-cap.vibrating {
+    color: #ff3b47 !important;
+    text-shadow: 0 0 10px rgba(255, 59, 71, 0.9), 0 0 4px #fff !important;
+    z-index: 4;
+}
+
+[data-vision="nvg"] .living-cap.attracted,
+[data-vision="nvg"] .living-cap.vibrating {
+    color: #00ff66 !important;
+    text-shadow: 0 0 12px rgba(0, 255, 102, 0.8), 0 0 2px #fff !important;
+}
+
+[data-vision="vhs"] .living-cap.attracted,
+[data-vision="vhs"] .living-cap.vibrating {
+    color: #38bdf8 !important;
+    text-shadow: 2px 0 rgba(255, 0, 80, 0.8), -2px 0 rgba(0, 240, 255, 0.8) !important;
+}
+
+/* =========================================================================
+   19. РАЗДЕЛ НОВОСТЕЙ (DEVLOG TIMELINE FEED)
+   ========================================================================= */
+.news-section {
+    padding: 100px 0;
+    position: relative;
+    background: linear-gradient(180deg, transparent 0%, rgba(10, 12, 17, 0.5) 50%, transparent 100%);
+}
+
+.news-timeline {
+    position: relative;
+    margin-top: 48px;
+    padding-left: 36px;
+}
+
+.news-timeline::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--accent-red) 0%, rgba(230, 57, 70, 0.3) 70%, transparent 100%);
+    box-shadow: 0 0 10px var(--accent-red-glow);
+}
+
+.news-item {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.news-item:last-child {
+    margin-bottom: 0;
+}
+
+.news-marker {
+    position: absolute;
+    left: -36px;
+    top: 22px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 2px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: var(--transition-smooth);
+}
+
+.news-item.current-stage .news-marker {
+    border-color: var(--accent-red);
+    box-shadow: 0 0 14px var(--accent-red-glow);
+}
+
+.marker-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent-red);
+    animation: pulseMarker 1.8s infinite;
+}
+
+@keyframes pulseMarker {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.4; }
+}
+
+.news-bubble {
+    background: rgba(14, 18, 26, 0.85);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 28px 32px;
+    backdrop-filter: blur(12px);
+    transition: var(--transition-smooth);
+}
+
+.news-bubble:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.news-item.current-stage .news-bubble {
+    border-color: rgba(230, 57, 70, 0.4);
+    box-shadow: 0 0 24px rgba(230, 57, 70, 0.12);
+}
+
+.news-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.news-time {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--hud-color);
+    letter-spacing: 0.08em;
+}
+
+.news-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.badge-active { background: rgba(230, 57, 70, 0.2); color: #ff5252; border: 1px solid #ff5252; }
+.badge-community { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; }
+.badge-warning { background: rgba(234, 179, 8, 0.2); color: #eab308; border: 1px solid #eab308; }
+.badge-job { background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 1px solid #a855f7; }
+.badge-rebrand { background: rgba(236, 72, 153, 0.2); color: #ec4899; border: 1px solid #ec4899; }
+.badge-holiday { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
+.badge-teaser { background: rgba(249, 115, 22, 0.2); color: #f97316; border: 1px solid #f97316; }
+.badge-announcement { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.2); }
+
+.news-author {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.news-title {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text-primary);
+}
+
+.news-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.news-text:last-child {
+    margin-bottom: 0;
+}
+
+.news-quote {
+    margin: 18px 0;
+    padding: 16px 20px;
+    background: rgba(6, 7, 10, 0.6);
+    border-left: 3px solid var(--accent-red);
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.news-quote strong {
+    color: var(--accent-red);
+}
+
+.news-sign {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 14px;
+}
+
+.news-action-row {
+    margin: 16px 0;
+}
+
+.news-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #4ade80;
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
+}
+
+.news-link-btn:hover {
+    background: rgba(34, 197, 94, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+}
+
+.news-contact-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0;
+    padding: 14px 18px;
+    background: rgba(234, 179, 8, 0.08);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+}
+
+.contact-email {
+    color: #fbbf24;
+    text-decoration: underline;
+}
+
+.contact-channel, .tag-channel {
+    color: #a855f7;
+    font-family: var(--font-mono);
+}
+
+.highlight-lead {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #f97316;
+}
+
+.news-text-sm {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
         animation-duration: 0.01ms !important;
