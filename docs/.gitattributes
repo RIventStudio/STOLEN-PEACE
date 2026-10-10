@@ -1,0 +1,7 @@
+# Отключаем Git LFS для статических веб-ассетов документации и GitHub Pages
+* -filter -diff -merge
+*.jpg -filter -diff -merge
+*.jpeg -filter -diff -merge
+*.png -filter -diff -merge
+*.webp -filter -diff -merge
+*.svg -filter -diff -merge
