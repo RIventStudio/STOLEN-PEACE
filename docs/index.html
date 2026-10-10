@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru" data-vision="normal">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOLEN PEACE — Психологический триллер от первого лица | RIventStudio</title>
+    
+    <!-- Предзагрузка критических ресурсов и шрифтов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Inter:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Интерактивный холст фонаря и динамической тьмы -->
+    <canvas id="flashlight-canvas" aria-hidden="true"></canvas>
+
+    <!-- Оверлей видоискателя камеры (HUD) -->
+    <div class="camera-hud" aria-label="Интерфейс видоискателя">
+        <div class="hud-top container">
+            <div class="hud-meta">
+                <span class="hud-rec-badge"><span class="rec-dot"></span>REC</span>
+                <span class="hud-timer" id="hud-timer">00:14:22:08</span>
+                <span class="hud-res">4K 60FPS RAW</span>
+            </div>
+            
+            <!-- Переключатель современных режимов зрения (Vision Mode Switcher) -->
+            <div class="vision-modes" role="toolbar" aria-label="Режимы зрения">
+                <button type="button" class="mode-btn active" data-mode="normal" title="Обычный свет фонаря">
+                    <span class="mode-icon">&#9788;</span> NORMAL
+                </button>
+                <button type="button" class="mode-btn" data-mode="nvg" title="Инфракрасное ночное видение">
+                    <span class="mode-icon">&#128065;</span> NVG
+                </button>
+                <button type="button" class="mode-btn" data-mode="vhs" title="Режим аналоговой пленки VHS">
+                    <span class="mode-icon">&#128252;</span> VHS REC
+                </button>
+            </div>
+
+            <div class="hud-controls">
+                <button type="button" id="audio-toggle" class="audio-btn" aria-label="Включить атмосферный звук">
+                    <span class="audio-icon">&#128263;</span> <span class="audio-label">AUDIO: OFF</span>
+                </button>
+                <div class="battery-indicator" title="Заряд фонаря">
+                    <span class="bat-text">BAT 84%</span>
+                    <div class="bat-bar"><div class="bat-level"></div></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Линейки видоискателя и прицел -->
+        <div class="hud-crosshair" aria-hidden="true"></div>
+        <div class="hud-scanlines" aria-hidden="true"></div>
+    </div>
+
+    <!-- Основная шапка сайта -->
+    <header class="site-header">
+        <div class="header-inner container">
+            <a href="#hero" class="brand-logo">
+                <span class="logo-glitch" data-text="STOLEN">STOLEN</span>
+                <span class="logo-sub">PEACE</span>
+            </a>
+            
+            <nav class="main-nav" aria-label="Навигация">
+                <ul class="nav-list">
+                    <li><a href="#prologue" class="nav-link">Хроника</a></li>
+                    <li><a href="#mechanics" class="nav-link">Механики C#</a></li>
+                    <li><a href="#evidence" class="nav-link">Улики</a></li>
+                    <li><a href="#playtest" class="nav-link">Плейтест</a></li>
+                </ul>
+            </nav>
+
+            <a href="https://github.com/RIventStudio/STOLEN-PEACE" target="_blank" rel="noopener noreferrer" class="btn btn-github">
+                <span class="git-icon">&#128279;</span> GitHub Repo
+            </a>
+        </div>
+    </header>
+
+    <main class="main-content">
+
+        <!-- 1. HERO: Пролог в темноте -->
+        <section class="hero-section" id="hero">
+            <div class="container hero-container">
+                <div class="hero-tag">
+                    <span class="tag-status">Alpha Stage</span>
+                    <span class="tag-engine">Unity 6 &bull; PBR Lighting</span>
+                </div>
+
+                <h1 class="hero-title">
+                    ТЕМНОТА НЕ СКРЫВАЕТ <span class="title-highlight">ПРАВДУ</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    Атмосферный психологический триллер от первого лица. Заброшенный загородный особняк, 
+                    запертые комнаты и физический контакт с каждой деталью окружения. 
+                    Направляйте луч фонаря, чтобы увидеть то, что скрыто в тенях.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="#playtest" class="btn btn-primary btn-glow">
+                        <span class="btn-text">Запросить доступ к альфе</span>
+                        <span class="btn-shine"></span>
+                    </a>
+                    <a href="#evidence" class="btn btn-glass">
+                        Исследовать улики &darr;
+                    </a>
+                </div>
+
+                <div class="hero-interact-tip">
+                    <span class="key-hint">MOUSE</span> Двигайте курсор для управления лучом фонаря &bull; 
+                    <span class="key-hint">MODE</span> Переключайте режимы камеры в верхнем HUD
+                </div>
+            </div>
+
+            <!-- Скрытая надпись, проявляющаяся только в луче фонаря -->
+            <div class="hidden-revelation" aria-hidden="true">
+                «НИКОМУ НЕЛЬЗЯ ДОВЕРЯТЬ В ЭТОМ ДОМЕ»
+            </div>
+        </section>
+
+        <!-- 2. СЮЖЕТ И ЛОР: Проявление при скролле (Scroll-driven animations) -->
+        <section class="story-section scroll-reveal" id="prologue">
+            <div class="container">
+                <div class="section-label">ГЛАВА 01 &bull; ПОГРУЖЕНИЕ</div>
+                <h2 class="section-heading">УТРАЧЕННЫЙ ПОКОЙ</h2>
+                
+                <div class="story-grid">
+                    <div class="story-text-pane">
+                        <p class="lead-text">
+                            Винтажная гостиная, скрип старых половиц, запыленные книги и внезапно погасший свет. 
+                            Каждая комната особняка хранит следы недавней борьбы и оставленные послания.
+                        </p>
+                        <p>
+                            Здесь нет шаблонных громких скримеров: гнетущее напряжение нарастает через 
+                            динамические тени, гул в коридорах и осознание того, что в доме вы не одни.
+                        </p>
+
+                        <div class="lore-points">
+                            <div class="lore-item">
+                                <span class="lore-num">01</span>
+                                <div class="lore-desc">
+                                    <strong>Иммерсивное повествование:</strong> сюжет раскрывается через окружение и детали интерьера.
+                                </div>
+                            </div>
+                            <div class="lore-item">
+                                <span class="lore-num">02</span>
+                                <div class="lore-desc">
+                                    <strong>Реалистичная физика:</strong> кинематический контроллер персонажа без аркадной легкости.
+                                </div>
+                            </div>
+                            <div class="lore-item">
+                                <span class="lore-num">03</span>
+                                <div class="lore-desc">
+                                    <strong>Динамический саспенс:</strong> аудио-визуальное давление меняется от ваших действий.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="story-interactive-card tilt-card" data-tilt>
+                        <div class="card-glass-glow"></div>
+                        <div class="card-badge">ОБЪЕКТ ИССЛЕДОВАНИЯ #01</div>
+                        <h3 class="card-title">Главный зал особняка</h3>
+                        <p class="card-meta">Локация: Vintage Living Room &bull; Координаты: [44.12, -12.44]</p>
+                        <div class="card-specs">
+                            <div class="spec-pill">PBR Shaders</div>
+                            <div class="spec-pill">Volumetric Fog</div>
+                            <div class="spec-pill">Binaural Audio</div>
+                        </div>
+                        <div class="card-inspect-hint">[НАВЕДИТЕ ДЛЯ 3D-НАКЛОНА]</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. КЛЮЧЕВЫЕ МЕХАНИКИ: C# & Unity Architecture -->
+        <section class="mechanics-section scroll-reveal" id="mechanics">
+            <div class="container">
+                <div class="section-label">ТЕХНОЛОГИЧЕСКИЙ СТЕК ИГРЫ</div>
+                <h2 class="section-heading">МОДУЛЬНАЯ АРХИТЕКТУРА C#</h2>
+                <p class="section-lead">Проект построен на чистых архитектурных паттернах для максимальной гибкости геймплея</p>
+
+                <div class="mechanics-grid">
+                    <!-- Карточка 1: IInteractable -->
+                    <article class="mechanic-card tilt-card" data-tilt>
+                        <div class="mech-header">
+                            <span class="mech-code-tag">C# Interface</span>
+                            <span class="mech-id">01</span>
+                        </div>
+                        <h3 class="mech-title">IInteractable Pattern</h3>
+                        <p class="mech-desc">
+                            Единый контракт взаимодействия с объектами мира. Любая дверь, замок, записка или выключатель 
+                            реализуют интерфейс с поддержкой физического луча и проверки условий.
+                        </p>
+                        <pre class="code-snippet"><code>public interface IInteractable {
+    void OnHover();
+    void Interact(PlayerController player);
+    string GetInteractionPrompt();
+}</code></pre>
+                    </article>
+
+                    <!-- Карточка 2: GameStateService -->
+                    <article class="mechanic-card tilt-card" data-tilt>
+                        <div class="mech-header">
+                            <span class="mech-code-tag">State Machine</span>
+                            <span class="mech-id">02</span>
+                        </div>
+                        <h3 class="mech-title">GameStateService</h3>
+                        <p class="mech-desc">
+                            Централизованный сервис управления игровыми состояниями: исследование, тревога, 
+                            режим погони и сюжетные триггеры без спагетти-кода.
+                        </p>
+                        <pre class="code-snippet"><code>public class GameStateService {
+    public Observable&lt;TensionState&gt; Tension;
+    public void RegisterEvidence(string id);
+}</code></pre>
+                    </article>
+
+                    <!-- Карточка 3: KinematicController -->
+                    <article class="mechanic-card tilt-card" data-tilt>
+                        <div class="mech-header">
+                            <span class="mech-code-tag">Kinematics</span>
+                            <span class="mech-id">03</span>
+                        </div>
+                        <h3 class="mech-title">Kinematic Character</h3>
+                        <p class="mech-desc">
+                            Точный контроль массы, шагов, дыхания и инерции персонажа. 
+                            Управляемый фокус камеры передает усталость и психологический стресс героя.
+                        </p>
+                        <pre class="code-snippet"><code>void UpdateVelocity(ref Vector3 current) {
+    ApplyGroundFriction(deltaTime);
+    CalculateHeadBobbing(stressLevel);
+}</code></pre>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. ИНТЕРАКТИВНЫЕ УЛИКИ (Popover API + Web Audio) -->
+        <section class="evidence-section scroll-reveal" id="evidence">
+            <div class="container">
+                <div class="section-label">ИНТЕРАКТИВНОЕ ДОСЬЕ</div>
+                <h2 class="section-heading">УЛИКИ И АРТЕФАКТЫ ОСОБНЯКА</h2>
+                <p class="section-lead">Кликните на улику, чтобы открыть рассекреченное досье через Popover API</p>
+
+                <div class="evidence-grid">
+                    <!-- Улика 1 -->
+                    <div class="evidence-item">
+                        <button type="button" class="evidence-trigger" popovertarget="evidence-1" aria-haspopup="dialog">
+                            <span class="evidence-icon">&#128221;</span>
+                            <span class="evidence-name">Дневник хозяина дома</span>
+                            <span class="evidence-action">Осмотреть &rarr;</span>
+                        </button>
+                    </div>
+
+                    <!-- Улика 2 -->
+                    <div class="evidence-item">
+                        <button type="button" class="evidence-trigger" popovertarget="evidence-2" aria-haspopup="dialog">
+                            <span class="evidence-icon">&#128254;</span>
+                            <span class="evidence-name">Аудиокассета #4</span>
+                            <span class="evidence-action">Осмотреть &rarr;</span>
+                        </button>
+                    </div>
+
+                    <!-- Улика 3 -->
+                    <div class="evidence-item">
+                        <button type="button" class="evidence-trigger" popovertarget="evidence-3" aria-haspopup="dialog">
+                            <span class="evidence-icon">&#128273;</span>
+                            <span class="evidence-name">Кованый ключ с гравировкой</span>
+                            <span class="evidence-action">Осмотреть &rarr;</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Нативные Popovers -->
+                <div id="evidence-1" popover="auto" class="modern-popover">
+                    <div class="popover-box">
+                        <div class="popover-header">
+                            <span class="popover-tag">УЛИКА #01 &bull; ТЕКСТ</span>
+                            <button type="button" class="popover-close" popovertarget="evidence-1" popovertargetaction="hide">&times;</button>
+                        </div>
+                        <h4 class="popover-title">Вырванная страница из дневника</h4>
+                        <p class="popover-body">
+                            «29 сентября. Они снова ходили по чердаку. Звук шагов тяжелый, но половицы не скрипят. 
+                            Я запер дверь на второй этаж. Если ты нашел это — не включай верхний свет...»
+                        </p>
+                        <div class="popover-footer">
+                            Статус: <em>Документ подтвержден</em> &bull; Местонахождение: Гостиная, стол
+                        </div>
+                    </div>
+                </div>
+
+                <div id="evidence-2" popover="auto" class="modern-popover">
+                    <div class="popover-box">
+                        <div class="popover-header">
+                            <span class="popover-tag">УЛИКА #02 &bull; АУДИО</span>
+                            <button type="button" class="popover-close" popovertarget="evidence-2" popovertargetaction="hide">&times;</button>
+                        </div>
+                        <h4 class="popover-title">Магнитная лента: Запись 18:47</h4>
+                        <p class="popover-body">
+                            Слышны помехи аналоговой пленки, частое дыхание и звук отпираемого железного засова. 
+                            В конце пленки раздается тихий щелчок и голос: <em>«Оно уже внутри»</em>.
+                        </p>
+                        <div class="popover-footer">
+                            Формат: Микрокассета &bull; Качество: Повреждено временем
+                        </div>
+                    </div>
+                </div>
+
+                <div id="evidence-3" popover="auto" class="modern-popover">
+                    <div class="popover-box">
+                        <div class="popover-header">
+                            <span class="popover-tag">УЛИКА #03 &bull; ПРЕДМЕТ</span>
+                            <button type="button" class="popover-close" popovertarget="evidence-3" popovertargetaction="hide">&times;</button>
+                        </div>
+                        <h4 class="popover-title">Тяжелый бронзовый ключ</h4>
+                        <p class="popover-body">
+                            На ключе выбита эмблема двух скрещенных ламп и надпись на латыни: 
+                            <em>Pax Amissa</em> («Утраченный мир»). Отпирает потайную комнату подвала.
+                        </p>
+                        <div class="popover-footer">
+                            Материал: Черненная бронза &bull; Состояние: Следы коррозии
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. ФОРМА ЗАЯВКИ НА ПЛЕЙТЕСТ -->
+        <section class="playtest-section scroll-reveal" id="playtest">
+            <div class="container">
+                <div class="playtest-card">
+                    <div class="playtest-header">
+                        <span class="playtest-badge">EARLY ACCESS</span>
+                        <h2 class="section-heading">СТАНЬТЕ ПЕРВЫМ ИСПЫТАТЕЛЕМ</h2>
+                        <p class="playtest-lead">
+                            Подайте заявку на участие в закрытом тестировании альфа-билда игры STOLEN PEACE в Steam / PC.
+                        </p>
+                    </div>
+
+                    <form class="playtest-form" id="playtest-form" novalidate>
+                        <div class="form-grid">
+                            <div class="field-wrap">
+                                <label for="pt-name" class="field-label">Имя или никнейм</label>
+                                <input type="text" id="pt-name" name="name" class="field-input" placeholder="Например, Артём" required minlength="2">
+                                <span class="field-status-msg">Введите от 2 символов</span>
+                            </div>
+
+                            <div class="field-wrap">
+                                <label for="pt-email" class="field-label">Email для инвайта Steam</label>
+                                <input type="email" id="pt-email" name="email" class="field-input" placeholder="tester@steam.com" required>
+                                <span class="field-status-msg">Укажите корректный email</span>
+                            </div>
+                        </div>
+
+                        <div class="form-row-checkbox">
+                            <label class="custom-check">
+                                <input type="checkbox" name="agreement" required checked>
+                                <span class="checkmark"></span>
+                                <span class="check-text">Я готов предоставить честный фидбек по атмосфере и балансу</span>
+                            </label>
+                        </div>
+
+                        <div class="form-submit-row">
+                            <button type="submit" class="btn btn-primary btn-submit-pt">
+                                <span>Отправить заявку</span> &rarr;
+                            </button>
+                            <div class="form-response-msg" id="form-feedback" aria-live="polite"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Подвал сайта -->
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <div class="footer-logo">STOLEN PEACE</div>
+                <p class="footer-desc">
+                    Авторский инди-проект от <strong>RIventStudio</strong> (Неменущий Артём Витальевич). 
+                    Сделано с использованием передовых Web APIs, CSS Scroll-driven animations и Web Audio API.
+                </p>
+            </div>
+
+            <div class="footer-links-group">
+                <h4 class="footer-group-title">Проект</h4>
+                <ul class="footer-nav">
+                    <li><a href="https://github.com/RIventStudio/STOLEN-PEACE" target="_blank" rel="noopener noreferrer">Репозиторий игры</a></li>
+                    <li><a href="https://github.com/RIventStudio/STOLEN-PEACE/blob/main/THIRD_PARTY_ASSETS.md" target="_blank" rel="noopener noreferrer">Third Party Assets</a></li>
+                    <li><a href="https://github.com/RIventStudio" target="_blank" rel="noopener noreferrer">GitHub профиль</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container bottom-row">
+                <span>&copy; 2026 RIventStudio. STOLEN PEACE. Все права защищены.</span>
+                <span>Created with Modern Web Guidance Best Practices</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипт интерактивных веб-технологий -->
+    <script src="app.js"></script>
+</body>
+</html>

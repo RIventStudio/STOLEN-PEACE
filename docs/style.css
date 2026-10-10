@@ -1,0 +1,1252 @@
+/* ==========================================================================
+   STOLEN PEACE — Cutting-Edge Web Experience
+   Modern Web Standards: Scroll-driven animations, Popovers, @starting-style,
+   CSS :has(), :user-valid, Vision Shaders (NVG / VHS), Web Audio Engine.
+   Developer: RIventStudio (Неменущий Артём Витальевич)
+   ========================================================================== */
+
+/* 1. CSS CUSTOM PROPERTIES & THEME PALETTES */
+:root {
+    --bg-base: #07080b;
+    --bg-surface: #0e1117;
+    --bg-card: rgba(18, 22, 31, 0.75);
+    --bg-card-hover: rgba(28, 34, 48, 0.9);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(230, 57, 70, 0.5);
+
+    --accent-red: #e63946;
+    --accent-red-glow: rgba(230, 57, 70, 0.45);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --font-heading: 'Cinzel', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+
+    --radius-sm: 6px;
+    --radius-md: 14px;
+    --radius-lg: 24px;
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-smooth: all 0.35s var(--ease-out-expo);
+
+    --hud-color: rgba(255, 255, 255, 0.85);
+    --hud-accent: #e63946;
+}
+
+/* 2. VISION MODES (NVG & VHS GLITCH) */
+[data-vision="nvg"] {
+    --bg-base: #010d05;
+    --bg-surface: #041a0b;
+    --bg-card: rgba(5, 34, 15, 0.85);
+    --bg-card-hover: rgba(8, 50, 22, 0.95);
+    --border-subtle: rgba(0, 255, 102, 0.25);
+    --border-active: rgba(0, 255, 102, 0.7);
+
+    --accent-red: #00ff66;
+    --accent-red-glow: rgba(0, 255, 102, 0.5);
+    --text-primary: #d1fae5;
+    --text-secondary: #6ee7b7;
+    --text-muted: #34d399;
+
+    --hud-color: #00ff66;
+    --hud-accent: #00ff66;
+    filter: brightness(1.15) contrast(1.25);
+}
+
+[data-vision="vhs"] {
+    --bg-base: #0a090c;
+    --bg-surface: #14121a;
+    --bg-card: rgba(24, 21, 33, 0.85);
+    --accent-red: #38bdf8;
+    --accent-red-glow: rgba(56, 189, 248, 0.5);
+    --hud-color: #38bdf8;
+    --hud-accent: #f43f5e;
+    filter: contrast(1.1) saturate(0.85);
+}
+
+/* 3. BASE RESET & BOX MODEL */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+body {
+    min-height: 100vh;
+    position: relative;
+    cursor: crosshair;
+}
+
+/* 4. CANVAS ФОНАРЯ & SCANLINES */
+#flashlight-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 90;
+    mix-blend-mode: multiply;
+}
+
+/* 5. CAMERA HUD (Видоискатель) */
+.camera-hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.hud-top {
+    width: 100%;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(7, 8, 11, 0.9) 0%, transparent 100%);
+    pointer-events: auto;
+}
+
+.hud-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--hud-color);
+}
+
+.hud-rec-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(230, 57, 70, 0.2);
+    border: 1px solid var(--hud-accent);
+    color: var(--hud-accent);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.rec-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--hud-accent);
+    border-radius: 50%;
+    animation: blinkRec 1s infinite;
+}
+
+@keyframes blinkRec {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.hud-timer {
+    letter-spacing: 0.1em;
+}
+
+.hud-res {
+    color: var(--text-muted);
+}
+
+/* Переключатели режимов зрения */
+.vision-modes {
+    display: flex;
+    gap: 8px;
+    background: rgba(14, 17, 23, 0.85);
+    border: 1px solid var(--border-subtle);
+    padding: 4px;
+    border-radius: var(--radius-sm);
+}
+
+.mode-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mode-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.mode-btn.active {
+    background: var(--accent-red);
+    color: #ffffff;
+    box-shadow: 0 0 12px var(--accent-red-glow);
+}
+
+[data-vision="nvg"] .mode-btn.active {
+    background: #00ff66;
+    color: #010d05;
+    font-weight: 700;
+}
+
+/* Контролы звука и батареи */
+.hud-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.audio-btn {
+    background: rgba(14, 17, 23, 0.85);
+    border: 1px solid var(--border-subtle);
+    color: var(--hud-color);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-smooth);
+}
+
+.audio-btn:hover {
+    border-color: var(--accent-red);
+    box-shadow: 0 0 10px var(--accent-red-glow);
+}
+
+.audio-btn.playing {
+    background: rgba(230, 57, 70, 0.2);
+    border-color: var(--accent-red);
+}
+
+.battery-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--hud-color);
+}
+
+.bat-bar {
+    width: 32px;
+    height: 14px;
+    border: 1.5px solid var(--hud-color);
+    border-radius: 2px;
+    padding: 1.5px;
+    position: relative;
+}
+
+.bat-bar::after {
+    content: "";
+    position: absolute;
+    right: -4px;
+    top: 3px;
+    width: 2px;
+    height: 5px;
+    background: var(--hud-color);
+    border-radius: 0 1px 1px 0;
+}
+
+.bat-level {
+    height: 100%;
+    width: 84%;
+    background-color: var(--hud-accent);
+}
+
+/* Сканлайны для режима ночного видения и VHS */
+.hud-scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+[data-vision="nvg"] .hud-scanlines {
+    opacity: 0.4;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 255, 102, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 3px, 6px 100%;
+}
+
+[data-vision="vhs"] .hud-scanlines {
+    opacity: 0.6;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0px, rgba(0, 0, 0, 0.2) 2px, transparent 2px, transparent 4px);
+    animation: vhsTracking 8s infinite linear;
+}
+
+@keyframes vhsTracking {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100vh); }
+}
+
+/* Прицел по центру */
+.hud-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hud-crosshair::before, .hud-crosshair::after {
+    content: "";
+    position: absolute;
+    background: var(--hud-color);
+    opacity: 0.4;
+}
+
+.hud-crosshair::before {
+    width: 6px;
+    height: 1px;
+    top: 13px;
+    left: 10px;
+}
+
+.hud-crosshair::after {
+    height: 6px;
+    width: 1px;
+    top: 10px;
+    left: 13px;
+}
+
+/* 6. ШАПКА САЙТА (Header) */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    background: rgba(7, 8, 11, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 68px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    text-decoration: none;
+    font-family: var(--font-heading);
+}
+
+.logo-glitch {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--accent-red);
+    letter-spacing: 0.08em;
+    position: relative;
+    text-shadow: 0 0 16px var(--accent-red-glow);
+}
+
+.logo-sub {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.12em;
+}
+
+.main-nav {
+    display: flex;
+}
+
+.nav-list {
+    display: flex;
+    list-style: none;
+    gap: 32px;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    position: relative;
+    padding: 6px 0;
+    transition: var(--transition-smooth);
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-red);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.btn-github {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-smooth);
+}
+
+.btn-github:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+/* 7. КОНТЕЙНЕРЫ И ТИПОГРАФИКА */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.section-label {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-red);
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+}
+
+.section-heading {
+    font-family: var(--font-heading);
+    font-size: 2.6rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.section-lead {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    max-width: 680px;
+    margin-bottom: 48px;
+}
+
+/* 8. HERO-СЕКЦИЯ */
+.hero-section {
+    min-height: calc(100vh - 68px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    padding: 100px 0 80px;
+    background: radial-gradient(circle at 50% 40%, rgba(26, 32, 48, 0.45) 0%, transparent 70%);
+}
+
+.hero-container {
+    max-width: 900px;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(18, 22, 31, 0.8);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 18px;
+    border-radius: 50px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    margin-bottom: 32px;
+}
+
+.tag-status {
+    color: var(--accent-red);
+    font-weight: 700;
+}
+
+.tag-engine {
+    color: var(--text-secondary);
+}
+
+.hero-title {
+    font-family: var(--font-heading);
+    font-size: 4.2rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+}
+
+.title-highlight {
+    color: var(--accent-red);
+    text-shadow: 0 0 32px var(--accent-red-glow);
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 44px;
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+}
+
+/* Кнопки */
+.btn {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 14px 28px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--accent-red);
+    color: #ffffff;
+    box-shadow: 0 8px 24px var(--accent-red-glow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(230, 57, 70, 0.6);
+}
+
+.btn-glass {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-subtle);
+    color: var(--text-primary);
+    backdrop-filter: blur(8px);
+}
+
+.btn-glass:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+}
+
+.hero-interact-tip {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.key-hint {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Скрытая надпись фонаря */
+.hidden-revelation {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    letter-spacing: 0.2em;
+    color: rgba(230, 57, 70, 0.7);
+    text-shadow: 0 0 20px #e63946;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 9. SCROLL-DRIVEN ANIMATIONS (Современный CSS API) */
+@keyframes revealSection {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.scroll-reveal {
+    animation: revealSection linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 30%;
+}
+
+/* 10. СЕКЦИЯ СЮЖЕТА (Story) */
+.story-section {
+    padding: 120px 0;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.story-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 56px;
+    align-items: center;
+}
+
+.story-text-pane .lead-text {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    line-height: 1.7;
+}
+
+.story-text-pane p {
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    line-height: 1.7;
+}
+
+.lore-points {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lore-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 16px 20px;
+    border-radius: var(--radius-sm);
+}
+
+.lore-num {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--accent-red);
+    font-size: 1.1rem;
+}
+
+.lore-desc {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.lore-desc strong {
+    color: var(--text-primary);
+}
+
+/* 11. 3D TILT CARDS (Интерактивные 3D-карточки) */
+.tilt-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 36px 30px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: perspective(1000px) rotateX(calc(var(--tilt-y, 0) * 10deg)) rotateY(calc(var(--tilt-x, 0) * 10deg));
+    transition: transform 0.15s ease-out, border-color 0.3s ease, background 0.3s ease;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.tilt-card:hover {
+    border-color: var(--border-active);
+    background: var(--bg-card-hover);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+}
+
+.story-interactive-card .card-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-red);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+}
+
+.story-interactive-card .card-title {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    margin-bottom: 12px;
+}
+
+.story-interactive-card .card-meta {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+.card-specs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+}
+
+.spec-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 50px;
+}
+
+.card-inspect-hint {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-red);
+    letter-spacing: 0.1em;
+}
+
+/* 12. МЕХАНИКИ C# (Сетка с :has() реакцией) */
+.mechanics-section {
+    padding: 120px 0;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.mechanics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+/* CSS :has() селектор: фокусировка на одной карточке притупляет соседние */
+.mechanics-grid:has(.mechanic-card:hover) .mechanic-card:not(:hover) {
+    opacity: 0.5;
+    filter: blur(0.5px);
+    transform: scale(0.98);
+}
+
+.mechanic-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.mech-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.mech-code-tag {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-red);
+    background: rgba(230, 57, 70, 0.12);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+}
+
+.mech-id {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.mech-title {
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    margin-bottom: 14px;
+}
+
+.mech-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    flex-grow: 1;
+}
+
+.code-snippet {
+    background: #050608;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: #38bdf8;
+    overflow-x: auto;
+}
+
+/* 13. ИНТЕРАКТИВНЫЕ УЛИКИ И НАТИВНЫЙ POPOVER API */
+.evidence-section {
+    padding: 120px 0;
+}
+
+.evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.evidence-trigger {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 32px 24px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    transition: var(--transition-smooth);
+}
+
+.evidence-trigger:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-active);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.evidence-icon {
+    font-size: 2.2rem;
+}
+
+.evidence-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.evidence-action {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent-red);
+}
+
+/* Стилизация Popover с @starting-style */
+.modern-popover {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: auto;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    color: var(--text-primary);
+    box-shadow: none;
+    max-width: 560px;
+    width: 90vw;
+    
+    /* Дискретные переходы для модальных окон */
+    transition: opacity 0.3s ease, transform 0.3s var(--ease-out-expo), overlay 0.3s ease allow-discrete, display 0.3s ease allow-discrete;
+    opacity: 0;
+    transform: scale(0.92) translateY(24px);
+}
+
+.modern-popover:popover-open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+@starting-style {
+    .modern-popover:popover-open {
+        opacity: 0;
+        transform: scale(0.92) translateY(24px);
+    }
+}
+
+.modern-popover::backdrop {
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease, overlay 0.3s ease allow-discrete, display 0.3s ease allow-discrete;
+}
+
+.modern-popover:popover-open::backdrop {
+    opacity: 1;
+}
+
+@starting-style {
+    .modern-popover:popover-open::backdrop {
+        opacity: 0;
+    }
+}
+
+.popover-box {
+    background: #0f131a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    padding: 36px 32px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+}
+
+.popover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.popover-tag {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-red);
+    letter-spacing: 0.1em;
+}
+
+.popover-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.popover-close:hover {
+    color: var(--text-primary);
+}
+
+.popover-title {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    margin-bottom: 16px;
+}
+
+.popover-body {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+.popover-footer {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 18px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* 14. ФОРМА ПЛЕЙТЕСТА (Современные :user-valid и :user-invalid) */
+.playtest-section {
+    padding: 120px 0;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.playtest-card {
+    background: radial-gradient(circle at 50% 0%, rgba(230, 57, 70, 0.12) 0%, var(--bg-card) 60%);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 64px 48px;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 32px 72px rgba(0, 0, 0, 0.5);
+}
+
+.playtest-header {
+    text-align: center;
+    margin-bottom: 44px;
+}
+
+.playtest-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-red);
+    background: rgba(230, 57, 70, 0.15);
+    padding: 4px 14px;
+    border-radius: 50px;
+    margin-bottom: 16px;
+    letter-spacing: 0.1em;
+}
+
+.playtest-lead {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-top: 12px;
+}
+
+.playtest-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.field-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+}
+
+.field-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.field-input {
+    background: #090b10;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    transition: var(--transition-smooth);
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: var(--accent-red);
+    box-shadow: 0 0 0 3px var(--accent-red-glow);
+}
+
+/* Современные CSS селекторы валидации */
+.field-input:user-valid {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.field-input:user-invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.field-status-msg {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.form-row-checkbox {
+    margin-top: 4px;
+}
+
+.custom-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.custom-check input {
+    accent-color: var(--accent-red);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.check-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.form-submit-row {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.btn-submit-pt {
+    flex-shrink: 0;
+}
+
+.form-response-msg {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-response-msg.success {
+    color: #10b981;
+}
+
+.form-response-msg.error {
+    color: #ef4444;
+}
+
+/* 15. ПОДВАЛ (Footer) */
+.site-footer {
+    background: #040507;
+    border-top: 1px solid var(--border-subtle);
+    padding: 80px 0 36px;
+}
+
+.footer-inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 48px;
+    margin-bottom: 60px;
+    flex-wrap: wrap;
+}
+
+.footer-brand {
+    max-width: 440px;
+}
+
+.footer-logo {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    letter-spacing: 0.05em;
+}
+
+.footer-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.footer-desc strong {
+    color: var(--text-primary);
+}
+
+.footer-links-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.footer-group-title {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent-red);
+    letter-spacing: 0.1em;
+}
+
+.footer-nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.footer-nav a:hover {
+    color: var(--text-primary);
+    padding-left: 4px;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 28px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* 16. АДАПТИВНОСТЬ */
+@media (max-width: 1024px) {
+    .hero-title { font-size: 3.4rem; }
+    .story-grid { grid-template-columns: 1fr; }
+    .mechanics-grid { grid-template-columns: 1fr; }
+    .evidence-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .site-header { position: static; }
+    .header-inner { flex-direction: column; gap: 14px; height: auto; padding: 14px 20px; }
+    .nav-list { gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .btn-github { display: none; }
+
+    .hud-meta { display: none; }
+    .hud-top { padding: 10px 16px; justify-content: space-between; }
+
+    .hero-title { font-size: 2.4rem; }
+    .hero-subtitle { font-size: 1rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .playtest-card { padding: 36px 20px; }
+    .footer-inner { flex-direction: column; gap: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
