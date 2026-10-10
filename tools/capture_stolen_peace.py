@@ -8,8 +8,8 @@ def capture_stolen_peace(url="https://riventstudio.github.io/STOLEN-PEACE/", out
     os.makedirs(os.path.dirname(abs_out), exist_ok=True)
     temp_raw = abs_out + ".raw.png"
     
-    # Chrome headless capture with virtual time budget for rendering dynamic elements
-    ps_cmd = f"Start-Process -FilePath 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' -ArgumentList '--headless', '--disable-gpu', '--virtual-time-budget=2000', '--window-size={width},{height}', '--screenshot=\"{temp_raw}\"', '\"{url}\"' -Wait"
+    # Chrome headless capture
+    ps_cmd = f"Start-Process -FilePath 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' -ArgumentList '--headless', '--disable-gpu', '--window-size={width},{height}', '--screenshot=\"{temp_raw}\"', '\"{url}\"' -Wait"
     subprocess.run(["pwsh", "-NoProfile", "-Command", ps_cmd], check=True)
     
     if not os.path.exists(temp_raw):
