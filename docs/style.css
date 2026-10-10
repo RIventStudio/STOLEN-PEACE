@@ -1736,6 +1736,165 @@ dialog.photo-dialog[open]::backdrop {
     margin-top: 8px;
 }
 
+/* =========================================================================
+   18. ПАСХАЛКА-СКРИМЕР: КИСЛОТНО-ЖЕЛТАЯ ПЛАШКА С 3D ПЕРЕВОРОТОМ
+   ========================================================================= */
+.screamer-banner {
+    position: fixed;
+    z-index: 99999;
+    perspective: 1400px;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, visibility 0.35s;
+    will-change: transform, opacity;
+}
+
+/* Позиционирование по вертикали (не зависит от скролла!) */
+.screamer-banner.pos-top {
+    top: 36px;
+    bottom: auto;
+}
+
+.screamer-banner.pos-bottom {
+    bottom: 36px;
+    top: auto;
+}
+
+/* Выезд от левого края */
+.screamer-banner.edge-left {
+    left: 28px;
+    right: auto;
+    transform: translateX(calc(-100% - 80px));
+}
+
+.screamer-banner.edge-left.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* Выезд от правого края */
+.screamer-banner.edge-right {
+    right: 28px;
+    left: auto;
+    transform: translateX(calc(100% + 80px));
+}
+
+.screamer-banner.edge-right.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* 3D Карточка с переворотом вдоль вертикальной оси */
+.screamer-card {
+    position: relative;
+    width: clamp(340px, 46vw, 680px);
+    height: 104px;
+    transform-style: preserve-3d;
+    transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.screamer-banner.is-flipped .screamer-card {
+    transform: rotateY(180deg);
+}
+
+/* Стороны карточки: ЯРКИЙ КИСЛОТНО-ЖЕЛТЫЙ ЦВЕТ */
+.screamer-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: #ccff00; /* ЯРКИЙ КИСЛОТНО-ЖЕЛТЫЙ */
+    color: #050505;
+    border: 3.5px solid #000000;
+    border-radius: 8px;
+    box-shadow: 
+        0 0 35px rgba(204, 255, 0, 0.95),
+        0 0 75px rgba(204, 255, 0, 0.5),
+        0 24px 50px rgba(0, 0, 0, 0.95);
+    overflow: hidden;
+}
+
+.screamer-front {
+    background: #ccff00;
+}
+
+.screamer-back {
+    transform: rotateY(180deg);
+    background: #d4ff00;
+}
+
+/* Индустриальные полосы предупреждения (Hazard Stripes) */
+.hazard-stripe {
+    height: 12px;
+    width: 100%;
+    background: repeating-linear-gradient(
+        -45deg,
+        #000000,
+        #000000 14px,
+        #ccff00 14px,
+        #ccff00 28px
+    );
+}
+
+.screamer-back .hazard-stripe {
+    background: repeating-linear-gradient(
+        -45deg,
+        #000000,
+        #000000 14px,
+        #d4ff00 14px,
+        #d4ff00 28px
+    );
+}
+
+.screamer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 10px 18px;
+    flex-grow: 1;
+}
+
+.screamer-text {
+    font-family: var(--font-heading), 'Impact', sans-serif;
+    font-size: clamp(1.35rem, 2.6vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #000000;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.35);
+    white-space: nowrap;
+}
+
+.screamer-icon {
+    font-size: 1.8rem;
+    color: #000000;
+    animation: screamerPulse 0.4s infinite alternate;
+}
+
+@keyframes screamerPulse {
+    from { transform: scale(0.95); }
+    to { transform: scale(1.22); }
+}
+
+@media (max-width: 600px) {
+    .screamer-card {
+        width: calc(100vw - 40px);
+        height: 94px;
+    }
+    .screamer-banner.edge-left,
+    .screamer-banner.edge-right {
+        left: 20px;
+        right: 20px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
         animation-duration: 0.01ms !important;

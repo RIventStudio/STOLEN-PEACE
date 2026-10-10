@@ -12,6 +12,9 @@
  *   * When muted: letter vibration remains at 10% of base amplitude (subtle jitter)
  * - 20s Auto-Cycle with 60s Manual Override Pause
  * - VHS Mode with Heavy 10-40% Tape Interference
+ * - Screamer Easter Egg: Edge Idle (10%, 15s) -> 100% Volume Piercing Siren (5s + 2s decay),
+ *   Fixed Vertical Position Acid-Yellow Warning Banner ('НЕ ОСТАНАВЛИВАЙСЯ!!!'),
+ *   5s 3D Vertical Axis Flip ('УВИДЕМСЯ !!!'), Smooth 10s Exit Back into Screen Edge
  * 
  * Author: RIventStudio
  */
@@ -608,6 +611,231 @@
             playInteractSound();
             playtestForm.reset();
         });
+    }
+
+
+    // =========================================================================
+    // 9. ПАСХАЛКА-СКРИМЕР: КРАЙ ЭКРАНА (10%) + 15 СЕК БЕЗ ДВИЖЕНИЯ
+    // =========================================================================
+    const screamerBanner = document.getElementById('screamer-banner');
+    let edgeIdleTimer = null;
+    let isScreamerActive = false;
+    let cachedMouseX = -1;
+    let cachedMouseY = -1;
+
+    // Резкий пронзительный звук сирены на 100% громкости (5 сек + 2 сек спад)
+    function playScreamerSiren() {
+        if (!audioCtx) initAudio();
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
+
+        const now = audioCtx.currentTime;
+        const masterGain = audioCtx.createGain();
+        
+        // 100% громкости!
+        masterGain.gain.setValueAtTime(1.0, now);
+
+        // Осциллятор 1: Пронзительная визжащая сирена (sawtooth) с частотной модуляцией
+        const osc1 = audioCtx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(880, now);
+
+        // LFO для сирены (колебание высоты звука 3.5 раза в секунду)
+        const lfo1 = audioCtx.createOscillator();
+        lfo1.type = 'sawtooth';
+        lfo1.frequency.setValueAtTime(3.5, now);
+
+        const lfoGain1 = audioCtx.createGain();
+        lfoGain1.gain.setValueAtTime(320, now); // Модуляция +/- 320 Гц
+
+        lfo1.connect(lfoGain1);
+        lfoGain1.connect(osc1.frequency);
+
+        // Осциллятор 2: Диссонантный резкий квадрат (square) для тревоги
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'square';
+        osc2.frequency.setValueAtTime(740, now); // Диссонирующий тритон
+
+        const lfo2 = audioCtx.createOscillator();
+        lfo2.type = 'sine';
+        lfo2.frequency.setValueAtTime(7, now);
+
+        const lfoGain2 = audioCtx.createGain();
+        lfoGain2.gain.setValueAtTime(150, now);
+
+        lfo2.connect(lfoGain2);
+        lfoGain2.connect(osc2.frequency);
+
+        // Саб-удар в момент появления (шоковый бас)
+        const subOsc = audioCtx.createOscillator();
+        subOsc.type = 'triangle';
+        subOsc.frequency.setValueAtTime(120, now);
+        subOsc.frequency.exponentialRampToValueAtTime(30, now + 1.2);
+
+        const subGain = audioCtx.createGain();
+        subGain.gain.setValueAtTime(0.9, now);
+        subGain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+
+        subOsc.connect(subGain);
+        subGain.connect(masterGain);
+
+        // Микширование генераторов
+        const g1 = audioCtx.createGain();
+        g1.gain.value = 0.55;
+        osc1.connect(g1);
+        g1.connect(masterGain);
+
+        const g2 = audioCtx.createGain();
+        g2.gain.value = 0.45;
+        osc2.connect(g2);
+        g2.connect(masterGain);
+
+        masterGain.connect(audioCtx.destination);
+
+        // Старт звука
+        osc1.start(now);
+        osc2.start(now);
+        lfo1.start(now);
+        lfo2.start(now);
+        subOsc.start(now);
+        subOsc.stop(now + 1.25);
+
+        // Через 5 сек сирена начинает стихать (2 сек спад: от 5.0 до 7.0)
+        masterGain.gain.setValueAtTime(1.0, now + 5.0);
+        masterGain.gain.linearRampToValueAtTime(0.0001, now + 7.0);
+
+        // Остановка осцилляторов после полного затухания
+        osc1.stop(now + 7.1);
+        osc2.stop(now + 7.1);
+        lfo1.stop(now + 7.1);
+        lfo2.stop(now + 7.1);
+    }
+
+    // Активация пасхалки
+    function triggerScreamerEasterEgg(x, y) {
+        if (!screamerBanner || isScreamerActive) return;
+        isScreamerActive = true;
+
+        if (edgeIdleTimer) {
+            clearTimeout(edgeIdleTimer);
+            edgeIdleTimer = null;
+        }
+
+        // Позиционирование:
+        // Если мышь в нижней половине экрана - плашка появляется ВВЕРХУ, и наоборот!
+        const isBottomHalf = y > (window.innerHeight * 0.5);
+        const verticalClass = isBottomHalf ? 'pos-top' : 'pos-bottom';
+
+        // Выезд из того края, где стояла мышь (левый или правый 10%)
+        const isLeftEdge = x <= (window.innerWidth * 0.5);
+        const edgeClass = isLeftEdge ? 'edge-left' : 'edge-right';
+
+        // Подготовка плашки
+        screamerBanner.className = `screamer-banner ${verticalClass} ${edgeClass}`;
+        screamerBanner.setAttribute('aria-hidden', 'false');
+
+        // Принудительный reflow браузера перед анимацией въезда
+        void screamerBanner.offsetHeight;
+
+        // Появление плашки
+        screamerBanner.classList.add('is-visible');
+
+        // 1. Звук сирены 100% громкости на 5 сек, затем 2 сек спад
+        playScreamerSiren();
+
+        // 2. Через 5 сек плашка переворачивается вдоль вертикальной оси (обратная сторона "УВИДЕМСЯ !!!")
+        setTimeout(() => {
+            if (screamerBanner) {
+                screamerBanner.classList.add('is-flipped');
+            }
+        }, 5000);
+
+        // 3. Через 10 сек после переворота плавно заезжает обратно в край экрана
+        setTimeout(() => {
+            if (screamerBanner) {
+                screamerBanner.classList.remove('is-visible');
+            }
+        }, 15000);
+
+        // Сброс состояния после полного завершения уезда в край
+        setTimeout(() => {
+            if (screamerBanner) {
+                screamerBanner.classList.remove('is-flipped');
+                screamerBanner.setAttribute('aria-hidden', 'true');
+            }
+            isScreamerActive = false;
+        }, 16000);
+    }
+
+    // Отслеживание мыши в 10% зонах краев экрана
+    window.addEventListener('mousemove', (e) => {
+        cachedMouseX = e.clientX;
+        cachedMouseY = e.clientY;
+
+        if (isScreamerActive) return;
+
+        const winWidth = window.innerWidth;
+        const inLeftEdge = e.clientX <= (winWidth * 0.10);
+        const inRightEdge = e.clientX >= (winWidth * 0.90);
+
+        if (edgeIdleTimer) {
+            clearTimeout(edgeIdleTimer);
+            edgeIdleTimer = null;
+        }
+
+        // Если курсор находится в левом или правом 10% краю:
+        // запускаем таймер на 15 секунд бездействия
+        if (inLeftEdge || inRightEdge) {
+            edgeIdleTimer = setTimeout(() => {
+                triggerScreamerEasterEgg(cachedMouseX, cachedMouseY);
+            }, 15000);
+        }
+    }, { passive: true });
+
+    // Любая активность пользователя (клавиатура, скролл, колесико) сбрасывает ожидание
+    function resetEdgeIdleOnActivity() {
+        if (isScreamerActive) return;
+        if (edgeIdleTimer) {
+            clearTimeout(edgeIdleTimer);
+            edgeIdleTimer = null;
+        }
+        const winWidth = window.innerWidth;
+        const inLeftEdge = cachedMouseX >= 0 && cachedMouseX <= (winWidth * 0.10);
+        const inRightEdge = cachedMouseX >= (winWidth * 0.90);
+        if (inLeftEdge || inRightEdge) {
+            edgeIdleTimer = setTimeout(() => {
+                triggerScreamerEasterEgg(cachedMouseX, cachedMouseY);
+            }, 15000);
+        }
+    }
+
+    ['keydown', 'scroll', 'wheel', 'pointerdown', 'touchstart'].forEach((evt) => {
+        window.addEventListener(evt, resetEdgeIdleOnActivity, { passive: true });
+    });
+
+    document.addEventListener('mouseleave', () => {
+        if (edgeIdleTimer) {
+            clearTimeout(edgeIdleTimer);
+            edgeIdleTimer = null;
+        }
+    });
+
+    // Экспорт для отладки и демонстрации
+    window.__triggerScreamer = triggerScreamerEasterEgg;
+
+    // Поддержка тестового предпросмотра через хеш URL:
+    // #screamer-front -> мгновенно активирует лицевую сторону ("НЕ ОСТАНАВЛИВАЙСЯ!!!")
+    // #screamer-back  -> мгновенно активирует обратную сторону ("УВИДЕМСЯ !!!")
+    if (window.location.hash === '#screamer-front') {
+        setTimeout(() => {
+            triggerScreamerEasterEgg(50, 700);
+        }, 100);
+    } else if (window.location.hash === '#screamer-back') {
+        setTimeout(() => {
+            triggerScreamerEasterEgg(50, 700);
+            if (screamerBanner) screamerBanner.classList.add('is-flipped');
+        }, 100);
     }
 
 })();
