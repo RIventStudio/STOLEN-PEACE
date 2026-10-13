@@ -1,0 +1,8 @@
+* -filter
+*.pdf binary
+*.png binary
+*.xlsx binary
+*.sql text diff
+*.json text diff
+*.py text diff
+*.md text diff

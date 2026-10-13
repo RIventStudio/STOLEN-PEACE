@@ -58,3 +58,16 @@
 - Официальный блог на Пикабу: `https://pikabu.ru/@RIventStudio`
 - Telegram-канал студии: `@RiventStudio`
 - Email разработчика: `artemkayt2007@gmail.com`, `riventstudio@mail.ru`
+
+---
+
+## 6. Учебные материалы (-Учёба)
+
+В репозиторий включен полный комплект учебного проекта по базам данных (ИСП курс 2 семестр 4):
+- **Каталог проекта:** [`../study_database_logiflow/`](../study_database_logiflow/)
+- **Главный файл презентации (PDF):** [`../study_database_logiflow/Итоговая_Презентация_База_Данных_LogiFlow_DB.pdf`](../study_database_logiflow/Итоговая_Презентация_База_Данных_LogiFlow_DB.pdf)
+- **Пояснительная записка (PDF A4):** [`../study_database_logiflow/Итоговый_Отчет_База_Данных_LogiFlow_DB.pdf`](../study_database_logiflow/Итоговый_Отчет_База_Данных_LogiFlow_DB.pdf)
+- **Программный код СУБД (SQL):** [`../study_database_logiflow/database_project.sql`](../study_database_logiflow/database_project.sql)
+- **Книга Excel со словарем (пароль `4955`):** [`../study_database_logiflow/database_project.xlsx`](../study_database_logiflow/database_project.xlsx)
+- **Памятка для сдачи и защиты:** [`../study_database_logiflow/HANDOVER_MANUAL.md`](../study_database_logiflow/HANDOVER_MANUAL.md)
+
